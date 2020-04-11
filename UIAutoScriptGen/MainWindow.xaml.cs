@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -169,21 +170,21 @@ namespace UIAutoScriptGen
             Hashtable ControlsNData = new Hashtable();
             string[] NeededData = null;
             List<string> SubControls = new List<string>();
-            if (StkClickedButton == "InvokePatternIdentifiers.Pattern") 
+            if (StkClickedButton == "InvokePatternIdentifiers.Pattern")
             {
                 NeededData = new string[] { };
                 ControlsNData.Add("InvokeClick", NeededData);
-                SubControls.Add("InvokeClick"); 
+                SubControls.Add("InvokeClick");
             }
-            else if (StkClickedButton == "ExpandCollapsePatternIdentifiers.Pattern") 
+            else if (StkClickedButton == "ExpandCollapsePatternIdentifiers.Pattern")
             {
                 NeededData = new string[] { };
                 ControlsNData.Add("Expand", NeededData);
                 SubControls.Add("Expand");
                 ControlsNData.Add("Collapse", NeededData);
-                SubControls.Add("Collapse"); 
+                SubControls.Add("Collapse");
             }
-            else if (StkClickedButton == "WindowPatternIdentifiers.Pattern") 
+            else if (StkClickedButton == "WindowPatternIdentifiers.Pattern")
             {
                 NeededData = new string[] { };
                 SubControls.Add("WinMaxState");
@@ -242,7 +243,7 @@ namespace UIAutoScriptGen
                 ControlsNData.Add("Toggle", NeededData);
             }
 
-            else 
+            else
             {
                 NeededData = new string[] { "Undefined" };
                 SubControls.Add("Undefined");
@@ -272,21 +273,21 @@ namespace UIAutoScriptGen
                     Background = Brushes.White,
                     BorderBrush = Brushes.DarkBlue,
                 };
-                btnSubControl.Click += delegate (object senderr, RoutedEventArgs ee) { BtnSubControl_Click(senderr, ee, _ElemHash, btnSubControl, (string[])ControlsNData[SubControl.ToString()], _Elem); };
+                btnSubControl.Click += delegate (object senderr, RoutedEventArgs ee) { BtnSubControl_Click(senderr, ee, _ElemHash, btnSubControl, (string[])ControlsNData[SubControl.ToString()]); };
                 patternWin.stkSubControlTypes.Children.Add(btnSubControl);
             }
         }
 
-        private void BtnSubControl_Click(object sender, RoutedEventArgs e, Hashtable _ElemHash, Button Btn, string[] SubMenuActions, AutomationElement _Elem)
+        private void BtnSubControl_Click(object sender, RoutedEventArgs e, Hashtable _ElemHash, Button Btn, string[] SubMenuActions)
         {
             //lstElemList.Items.Add(new ElemListItem(Btn.Content.ToString(), _Elem));
-                        
+
             //If the data needed for selected action is not null, show the window and ask for
             //needed details.
             if (!(SubMenuActions.Length == 0))
             {
-                dataWindow.stkDataLabel.Children.Clear(); dataWindow.stkDataText.Children.Clear();                
-                LayControls(dataWindow.stkDataLabel, dataWindow.stkDataText, 22, 125, SubMenuActions, Btn, _ElemHash, _Elem);
+                dataWindow.stkDataLabel.Children.Clear(); dataWindow.stkDataText.Children.Clear();
+                LayControls(dataWindow.stkDataLabel, dataWindow.stkDataText, 22, 125, SubMenuActions, Btn, _ElemHash);
 
                 dataWindow.Title = Btn.Content.ToString();
                 dataWindow.Show();
@@ -294,7 +295,7 @@ namespace UIAutoScriptGen
             //Else, do not show the DataWindow and proceed with adding the data.
             else
             {
-                lstElemList.Items.Add(new ElemListItem(Btn.Content.ToString(), _ElemHash, null, _Elem));
+                lstElemList.Items.Add(new ElemListItem(Btn.Content.ToString(), _ElemHash, null));
             }
             patternWin.Hide();
         }
@@ -309,10 +310,10 @@ namespace UIAutoScriptGen
         /// <param name="Width"></param>
         /// <param name="SubMenuActions"></param>
         /// <param name="Btn"></param>
-        private void LayControls(StackPanel labelStack, StackPanel textboxStack, int Height, int Width, 
-            string[] SubMenuActions, Button Btn, Hashtable _ElemHash, AutomationElement _Elem)
+        private void LayControls(StackPanel labelStack, StackPanel textboxStack, int Height, int Width,
+            string[] SubMenuActions, Button Btn, Hashtable _ElemHash)
         {
-            
+
             foreach (string action in SubMenuActions)
             {
                 Label lbl = new Label()
@@ -323,7 +324,7 @@ namespace UIAutoScriptGen
                 TextBox txtbx = new TextBox()
                 {
                     Name = action,
-                    Height = lbl.Height+10,
+                    Height = lbl.Height + 10,
                     Width = lbl.Width,
                 };
 
@@ -331,10 +332,10 @@ namespace UIAutoScriptGen
                 textboxStack.Children.Add(txtbx);
             }
 
-            dataWindow.btnAddData.Click += delegate (object sender, RoutedEventArgs e) { BtnAddData_Click(sender, e, Btn, _ElemHash, _Elem); };
+            dataWindow.btnAddData.Click += delegate (object sender, RoutedEventArgs e) { BtnAddData_Click(sender, e, Btn, _ElemHash); };
         }
 
-        private void BtnAddData_Click(object sender, RoutedEventArgs e, Button Btn, Hashtable _ElemHash, AutomationElement _Elem)
+        private void BtnAddData_Click(object sender, RoutedEventArgs e, Button Btn, Hashtable _ElemHash)
         {
             List<string> Data = new List<string>();
             UIElementCollection stkTextBoxes = dataWindow.stkDataText.Children;
@@ -344,7 +345,7 @@ namespace UIAutoScriptGen
             }
             string Datum = string.Join(",", Data);
 
-            lstElemList.Items.Add(new ElemListItem(Btn.Content.ToString(), _ElemHash, Datum, _Elem));
+            lstElemList.Items.Add(new ElemListItem(Btn.Content.ToString(), _ElemHash, Datum));
             e.Handled = true;
         }
 
@@ -386,7 +387,7 @@ namespace UIAutoScriptGen
             //Unregister hotkey.
             base.OnClosed(e);
             UnregisterHotKey(1);
-            
+
             //Remove override of closing method to hide.
             patternWin.Closing -= PatternWin_Closing;
             dataWindow.Closing -= DataWin_Closing;
@@ -411,17 +412,68 @@ namespace UIAutoScriptGen
 
         private void btnSaveScript_Click(object sender, RoutedEventArgs e)
         {
-            IList ScriptLines = lstElemList.Items;
-            ElemListItem one = (ElemListItem)ScriptLines[0];
+            List<ElemListItem> ScriptLines = new List<ElemListItem>();
+            ScriptLines.AddRange(lstElemList.Items.OfType<ElemListItem>());
+            //ElemListItem one = (ElemListItem)ScriptLines[0];
             IFormatter formatter = new BinaryFormatter();
-            Stream stream = new FileStream("C:\\Users\\Admn\\Documents\\TestSerial.txt", FileMode.Create, FileAccess.Write);
-            formatter.Serialize(stream, one);
-            stream.Close();
 
-            stream = new FileStream("C:\\Users\\Admn\\Documents\\TestSerial.txt", FileMode.Open, FileAccess.Read);
-            ElemListItem testDeSer = (ElemListItem)(formatter.Deserialize(stream));
+            SaveFileDialog SaveName = new SaveFileDialog()
+            {
+                Filter = "UIAuto File|*.uia",
+                Title = "Save Generated Script",
+                DefaultExt = "uia",
+            };
+            SaveName.ShowDialog();
+            if (SaveName.FileName != "")
+            {
+                try
+                {
+                    Stream stream = new FileStream((SaveName.FileName), FileMode.Create, FileAccess.Write);
+                    formatter.Serialize(stream, ScriptLines);
+                    stream.Close();
+                }
 
-            MessageBox.Show(testDeSer.Elem.Current.AutomationId);
+                catch (Exception ee)
+                {
+                    MessageBox.Show("File not saved!\nError: " + ee.Message);
+                }
+            }
+            //stream = new FileStream("C:\\Users\\Admin\\Documents\\TestSerial.txt", FileMode.Open, FileAccess.Read);
+            //ElemListItem testDeSer = (ElemListItem)(formatter.Deserialize(stream));
+        }
+
+        private void btnLoadScript_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog FilePath = new OpenFileDialog()
+            {
+                Filter = "UIAuto File|*.uia",
+                Title = "Open Generated Script",
+                DefaultExt = "uia",
+            };
+            FilePath.ShowDialog();
+            if (FilePath.FileName != "")
+            {
+                try
+                {
+                    Stream stream = new FileStream(FilePath.FileName, FileMode.Open, FileAccess.Read);
+                    IFormatter formatter = new BinaryFormatter();
+                    List<ElemListItem> items = (List<ElemListItem>)formatter.Deserialize(stream);
+                    foreach (ElemListItem item in items) { lstElemList.Items.Add(item); }
+                }
+                catch (Exception ee)
+                {
+                    MessageBox.Show("Unable to open file.\nError: " + ee.Message);
+                }
+            }
+        }
+
+        private void MainWinKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.S &&
+                System.Windows.Input.Keyboard.Modifiers == System.Windows.Input.ModifierKeys.Control)
+            {
+                MessageBox.Show("Save it!");
+            }
         }
     }
 
@@ -434,7 +486,6 @@ namespace UIAutoScriptGen
         public string ElemAutoID { get; set; }
         public string WinName { get; set; }
         public string Data { get; set; }
-        public AutomationElement Elem { get; set; }
         public ElemListItem(string Act, string ElName, string ElClass, string ElAutoID, string WName, string Dat)
         {
             Action = Act;
@@ -445,7 +496,7 @@ namespace UIAutoScriptGen
             Data = Dat;
         }
 
-        public ElemListItem(string SelectedAction, Hashtable ElemDetails, string Dat, AutomationElement Element)
+        public ElemListItem(string SelectedAction, Hashtable ElemDetails, string Dat)
         {
             Action = SelectedAction;
             ElemName = ElemDetails["Name"].ToString();
@@ -453,7 +504,6 @@ namespace UIAutoScriptGen
             ElemAutoID = ElemDetails["AutoID"].ToString();
             WinName = ElemDetails["ParentName"].ToString();
             Data = Dat;
-            Elem = Element;
         }
     }
 }

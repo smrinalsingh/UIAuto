@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:UIAutoScriptGen"
         mc:Ignorable="d"
-        Title="Automation Script Generator" Height="426.804" Width="693.299" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="ThreeDBorderWindow">
+        Title="Automation Script Generator" Height="426.804" Width="693.299" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="ThreeDBorderWindow" KeyDown="MainWinKeyDown">
     <Grid>
         <Grid.Resources>
             <Style TargetType="Button">
@@ -39,7 +39,8 @@
                     <TextBlock x:Name="txtbInstructions" Margin="5,5,5,5" TextWrapping="Wrap" TextAlignment="Justify"/>
                 </Border>
                 <Button x:Name="btnRunSelected" Content="Run Selected" HorizontalAlignment="Left" Margin="10,35,0,0" VerticalAlignment="Top" Width="110"/>
-                <Button x:Name="btnSaveScript" Content="Save" HorizontalAlignment="Left" Margin="10,205,0,0" VerticalAlignment="Top" Width="225" Click="btnSaveScript_Click"/>
+                <Button x:Name="btnSaveScript" Content="Save" HorizontalAlignment="Left" Margin="125,205,0,0" VerticalAlignment="Top" Width="110" Click="btnSaveScript_Click"/>
+                <Button x:Name="btnLoadScript" Content="Load" HorizontalAlignment="Left" Margin="10,205,0,0" VerticalAlignment="Top" Width="110" Click="btnLoadScript_Click"/>
             </Grid>
         </Border>
     </Grid>
