@@ -389,7 +389,7 @@ namespace UIAutoScriptGen
             _ReturnTable.Add("ElemType", _ReturnElement.Current.ControlType.ProgrammaticName);
             _ReturnTable.Add("ProcID", _ReturnElement.Current.ProcessId);
             _ReturnTable.Add("ItemType", _ReturnElement.Current.ItemType);
-            _ReturnTable.Add("ParentName", Process.GetProcessById(_ReturnElement.Current.ProcessId).MainWindowTitle);
+            _ReturnTable.Add("ParentName", GetTopLevelWindow(_ReturnElement).Current.Name);
             _ReturnTable.Add("Element", _ReturnElement);
 
             return _ReturnTable;
@@ -413,6 +413,22 @@ namespace UIAutoScriptGen
             AutomationElement _ReturnElement = null;
             _ReturnElement = AutomationElement.FromPoint(pt);
             return _ReturnElement;
+        }
+
+        public static AutomationElement GetTopLevelWindow(AutomationElement element)
+        {
+            TreeWalker walker = TreeWalker.ControlViewWalker;
+            AutomationElement elementParent;
+            AutomationElement node = element;
+            if (node == AutomationElement.RootElement) return node;
+            do
+            {
+                elementParent = walker.GetParent(node);
+                if (elementParent == AutomationElement.RootElement) break;
+                node = elementParent;
+            }
+            while (true);
+            return node;
         }
 
         #endregion

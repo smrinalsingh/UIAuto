@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -22,6 +23,20 @@ namespace UIAutoScriptGen
     /// </summary>
     public partial class MainWindow : Window
     {
+
+        string openFileName;
+        private string OpenFileName
+        {
+            get
+            {
+                return openFileName;
+            }
+            set
+            {
+                openFileName = value;
+                SetWinName();
+            }
+        }
         PatternWin patternWin = new PatternWin();
         DataWindow dataWindow = new DataWindow();
 
@@ -31,6 +46,18 @@ namespace UIAutoScriptGen
             //PatternWin.PreviewMouseDown += stkItemClicked;
         }
 
+        private void SetWinName()
+        {
+            if (OpenFileName != null && OpenFileName != "")
+            {
+                Title = "Automation Script Generator | " + OpenFileName;
+            }
+
+            else
+            {
+                Title = "Automation Script Generator";
+            }
+        }
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
@@ -62,6 +89,16 @@ namespace UIAutoScriptGen
         {
             e.Cancel = true;
             dataWindow.Hide();
+        }
+
+        private void MainWinKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.S &&
+                System.Windows.Input.Keyboard.Modifiers == System.Windows.Input.ModifierKeys.Control)
+            {
+                SaveScript();
+                MessageBox.Show("Saved.");
+            }
         }
 
         #region Hotkey stuff
@@ -412,37 +449,38 @@ namespace UIAutoScriptGen
 
         private void btnSaveScript_Click(object sender, RoutedEventArgs e)
         {
-            List<ElemListItem> ScriptLines = new List<ElemListItem>();
-            ScriptLines.AddRange(lstElemList.Items.OfType<ElemListItem>());
-            //ElemListItem one = (ElemListItem)ScriptLines[0];
-            IFormatter formatter = new BinaryFormatter();
-
-            SaveFileDialog SaveName = new SaveFileDialog()
-            {
-                Filter = "UIAuto File|*.uia",
-                Title = "Save Generated Script",
-                DefaultExt = "uia",
-            };
-            SaveName.ShowDialog();
-            if (SaveName.FileName != "")
-            {
-                try
-                {
-                    Stream stream = new FileStream((SaveName.FileName), FileMode.Create, FileAccess.Write);
-                    formatter.Serialize(stream, ScriptLines);
-                    stream.Close();
-                }
-
-                catch (Exception ee)
-                {
-                    MessageBox.Show("File not saved!\nError: " + ee.Message);
-                }
-            }
-            //stream = new FileStream("C:\\Users\\Admin\\Documents\\TestSerial.txt", FileMode.Open, FileAccess.Read);
-            //ElemListItem testDeSer = (ElemListItem)(formatter.Deserialize(stream));
+            SaveScript();
         }
 
         private void btnLoadScript_Click(object sender, RoutedEventArgs e)
+        {
+            if (OpenFileName == "" || OpenFileName == null)
+            {
+                LoadFile();
+            }
+
+            else
+            {
+                MessageBoxResult Choice = MessageBox.Show("Save file?", "Confirmation", MessageBoxButton.YesNoCancel);
+                if (Choice == MessageBoxResult.Yes)
+                {
+                    SaveScript();
+                    lstElemList.Items.Clear();
+                    OpenFileName = null;
+                }
+
+                else if (Choice == MessageBoxResult.No)
+                {
+                    lstElemList.Items.Clear();
+                    OpenFileName = null;
+                    LoadFile();
+                }
+
+                else if (Choice == MessageBoxResult.Cancel || Choice == MessageBoxResult.None) { }
+            }
+        }
+
+        private void LoadFile()
         {
             OpenFileDialog FilePath = new OpenFileDialog()
             {
@@ -451,28 +489,64 @@ namespace UIAutoScriptGen
                 DefaultExt = "uia",
             };
             FilePath.ShowDialog();
-            if (FilePath.FileName != "")
+            OpenFileName = FilePath.FileName;
+
+            if (OpenFileName != null && OpenFileName != "") 
             {
                 try
                 {
-                    Stream stream = new FileStream(FilePath.FileName, FileMode.Open, FileAccess.Read);
+                    Stream stream = new FileStream(OpenFileName, FileMode.Open, FileAccess.Read);
                     IFormatter formatter = new BinaryFormatter();
                     List<ElemListItem> items = (List<ElemListItem>)formatter.Deserialize(stream);
                     foreach (ElemListItem item in items) { lstElemList.Items.Add(item); }
+                    stream.Close();
                 }
                 catch (Exception ee)
                 {
                     MessageBox.Show("Unable to open file.\nError: " + ee.Message);
                 }
             }
+
+            else
+            {
+                OpenFileName = null;
+            }
         }
 
-        private void MainWinKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        private void SaveScript()
         {
-            if (e.Key == System.Windows.Input.Key.S &&
-                System.Windows.Input.Keyboard.Modifiers == System.Windows.Input.ModifierKeys.Control)
+            List<ElemListItem> ScriptLines = new List<ElemListItem>();
+            ScriptLines.AddRange(lstElemList.Items.OfType<ElemListItem>());
+            //ElemListItem one = (ElemListItem)ScriptLines[0];
+            IFormatter formatter = new BinaryFormatter();
+
+            if (OpenFileName == "" || OpenFileName == null)
             {
-                MessageBox.Show("Save it!");
+                SaveFileDialog SaveName = new SaveFileDialog()
+                {
+                    Filter = "UIAuto File|*.uia",
+                    Title = "Save Generated Script",
+                    DefaultExt = "uia",
+                };
+                SaveName.ShowDialog();
+
+                OpenFileName = SaveName.FileName;
+            }
+
+            else if (OpenFileName != "")
+            {
+                try
+                {
+                    Stream stream = new FileStream(OpenFileName, FileMode.Create, FileAccess.Write);
+                    formatter.Serialize(stream, ScriptLines);
+                    stream.Close();
+                }
+
+                catch (Exception ee)
+                {
+                    Debug.Write(ee.Message);
+                    MessageBox.Show("File not saved!\nError: " + ee.Message);
+                }
             }
         }
     }
