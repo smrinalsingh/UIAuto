@@ -1,0 +1,27 @@
+﻿<Window x:Class="UIAutoScriptGen.DataWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:UIAutoScriptGen"
+        mc:Ignorable="d"
+        Title="DataWindow" Height="264.416" Width="294.161">
+    <Grid Cursor="Cross">
+        <StackPanel x:Name="stkDataLabel" HorizontalAlignment="Left" Height="160" Margin="10,10,0,0" VerticalAlignment="Top" Width="125">
+            <StackPanel.Resources>
+                <Style TargetType="{x:Type Label}">
+                    <Setter Property="Margin" Value="0,0,0,2"/>
+                </Style>
+            </StackPanel.Resources>
+        </StackPanel>
+        <StackPanel x:Name="stkDataText" HorizontalAlignment="Left" Height="160" Margin="150,10,0,0" VerticalAlignment="Top" Width="125">
+            <StackPanel.Resources>
+                <Style TargetType="{x:Type TextBox}">
+                    <Setter Property="Margin" Value="0,0,0,2"/>
+                    <Setter Property="Height" Value="30"/>
+                </Style>
+            </StackPanel.Resources>
+        </StackPanel>
+        <Button x:Name="btnAddData" Content="Add Data" HorizontalAlignment="Left" VerticalAlignment="Top" Width="125" Margin="150,180,0,0" Height="27" Background="White" BorderBrush="#FF364E9E"/>
+    </Grid>
+</Window>

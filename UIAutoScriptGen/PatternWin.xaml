@@ -1,0 +1,39 @@
+﻿<Window x:Class="UIAutoScriptGen.PatternWin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:UIAutoScriptGen"
+        mc:Ignorable="d"
+        Title="PatternWin" Height="209" Width="440">
+    <Grid x:Name="Controls">
+        <Border x:Name="bdrControlTypes" BorderThickness="1" HorizontalAlignment="Left" Height="149" Margin="10,10,0,0" VerticalAlignment="Top" Width="170" BorderBrush="#FFC5C5C5">
+            <StackPanel x:Name="stkControlTypes">
+                <StackPanel.Resources>
+                    <Style TargetType="{x:Type Button}">
+                        <Setter Property="Margin" Value="0,0,0,2"/>
+                    </Style>
+                 </StackPanel.Resources>
+            </StackPanel>
+        </Border>
+        <Border x:Name="bdrSubControlTypes" BorderThickness="1" HorizontalAlignment="Left" Height="149" Margin="246,10,0,0" VerticalAlignment="Top" Width="170" BorderBrush="#FFC5C5C5">
+            <StackPanel x:Name="stkSubControlTypes">
+                <StackPanel.Resources>
+                    <Style TargetType="{x:Type Button}">
+                        <Setter Property="Margin" Value="0,0,0,2"/>
+                    </Style>
+                </StackPanel.Resources>
+            </StackPanel>
+        </Border>
+        <Separator HorizontalAlignment="Left" Height="28" Margin="133,70,0,0" VerticalAlignment="Top" Width="166" RenderTransformOrigin="0.5,0.5">
+            <Separator.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="90"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Separator.RenderTransform>
+        </Separator>
+    </Grid>
+</Window>
