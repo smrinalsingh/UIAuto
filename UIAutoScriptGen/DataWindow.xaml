@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:UIAutoScriptGen"
         mc:Ignorable="d"
         Title="DataWindow" Height="264.416" Width="294.161">
-    <Grid Cursor="Cross">
+    <Grid Cursor="">
         <StackPanel x:Name="stkDataLabel" HorizontalAlignment="Left" Height="160" Margin="10,10,0,0" VerticalAlignment="Top" Width="125">
             <StackPanel.Resources>
                 <Style TargetType="{x:Type Label}">

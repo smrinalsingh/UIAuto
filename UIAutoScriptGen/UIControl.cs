@@ -44,56 +44,6 @@ namespace UIAutoScriptGen
         }
         #endregion
 
-        #region Private Functions
-        private void GetUIWindow(string WinName, int Tries)
-        {
-            int i = 0;
-            AutomationElement _ReturnElem = null;
-            do
-            {
-                _ReturnElem = AutomationElement.RootElement.FindFirst
-                (TreeScope.Children, new PropertyCondition(AutomationElement.NameProperty, WinName));
-                ++i;
-                Thread.Sleep(200);
-            } while (i < Tries && _ReturnElem == null);
-            _Window = _ReturnElem;
-        }
-
-        private void GetWinElem(AutomationElement Win, string ElemID, int Tries)
-        {
-            int i = 0;
-            AutomationElement _ReturnElem = null;
-            do
-            {
-                _ReturnElem = Win.FindFirst(TreeScope.Descendants,
-                    new PropertyCondition(AutomationElement.AutomationIdProperty, ElemID));
-                ++i;
-                Thread.Sleep(200);
-            } while (i < Tries && _ReturnElem == null);
-            _WinElem = _ReturnElem;
-        }
-
-        private void GetWinElemByName(AutomationElement Win, string ElemName, int Tries)
-        {
-            int i = 0;
-            AutomationElement _ReturnElem = null;
-            do
-            {
-                _ReturnElem = Win.FindFirst(TreeScope.Descendants,
-                    new PropertyCondition(AutomationElement.NameProperty, ElemName));
-                ++i;
-                Thread.Sleep(200);
-            } while (i < Tries && _ReturnElem == null);
-            _WinElem = _ReturnElem;
-        }
-
-        [DllImport("user32")]
-        static extern int SetCursorPos(int x, int y);
-
-        [DllImport("user32.dll")]
-        static extern void mouse_event(uint dwFlags, uint dx, uint dy, uint dwData, int dwExtraInfo);
-        #endregion
-
         #region Pattern Definitions
         private static InvokePattern GetInvokePattern(AutomationElement element)
         {
@@ -146,99 +96,55 @@ namespace UIAutoScriptGen
         }
         #endregion
 
-        #region Public Static Functions
-        public static void MouseClick(string button)
-        {
-            switch (button)
-            {
-                case "left":
-                    mouse_event((uint)MouseEventFlags.LEFTDOWN, 0, 0, 0, 0);
-                    mouse_event((uint)MouseEventFlags.LEFTUP, 0, 0, 0, 0);
-                    break;
-                case "right":
-                    mouse_event((uint)MouseEventFlags.RIGHTDOWN, 0, 0, 0, 0);
-                    mouse_event((uint)MouseEventFlags.RIGHTUP, 0, 0, 0, 0);
-                    break;
-                case "middle":
-                    mouse_event((uint)MouseEventFlags.MIDDLEDOWN, 0, 0, 0, 0);
-                    mouse_event((uint)MouseEventFlags.MIDDLEUP, 0, 0, 0, 0);
-                    break;
-            }
-        }
-
-        public static void WaitElemAppear(string WinName, string WinElemID, int Tries)
+        #region Private Functions
+        private void GetUIWindow(string WinName, int Tries)
         {
             int i = 0;
-            AutomationElement _Win;
-            AutomationElement _WinElem;
+            AutomationElement _ReturnElem = null;
             do
             {
-                _Win = AutomationElement.RootElement.FindFirst
+                _ReturnElem = AutomationElement.RootElement.FindFirst
                 (TreeScope.Children, new PropertyCondition(AutomationElement.NameProperty, WinName));
                 ++i;
                 Thread.Sleep(200);
-            } while (i < Tries && _Win == null);
-            
-            if (_Win != null)
-            {
-                i = 0;
-                do
-                {
-                    _WinElem = _Win.FindFirst(TreeScope.Descendants,
-                        new PropertyCondition(AutomationElement.AutomationIdProperty, WinElemID));
-                    ++i;
-                    Thread.Sleep(200);
-                } while (i < Tries && _WinElem == null);
-
-                i = 0;
-                while(_WinElem == null && i < Tries)
-                {
-                    _WinElem = _Win.FindFirst(TreeScope.Descendants,
-                        new PropertyCondition(AutomationElement.NameProperty, WinElemID));
-                    ++i;
-                    Thread.Sleep(200);
-                }
-            }
+            } while (i < Tries && _ReturnElem == null);
+            _Window = _ReturnElem;
         }
 
-        public static void SendKeys(string Text)
+        private void GetWinElem(AutomationElement Win, string ElemID, int Tries)
         {
-            System.Windows.Forms.SendKeys.SendWait(Text);
-        }
-
-        public static void WaitElemDisappear(String WinName, String WinElem, int Tries)
-        {
-            AutomationElement _Win = null;
-            AutomationElement _ReturnWinElem = null;
-
-            while (true)
+            int i = 0;
+            AutomationElement _ReturnElem = null;
+            do
             {
-                int i = 0;
-                do
-                {
-                    _Win = AutomationElement.RootElement.FindFirst
-                    (TreeScope.Children, new PropertyCondition(AutomationElement.NameProperty, WinName));
-                    ++i;
-                    Thread.Sleep(200);
-                } while (i < Tries && _Win == null);
-
-                if (_Win != null)
-                {
-                    do
-                    {
-                        _ReturnWinElem = AutomationElement.RootElement.FindFirst
-                        (TreeScope.Children, new PropertyCondition(AutomationElement.NameProperty, WinElem));
-                        ++i;
-                        Thread.Sleep(200);
-                    } while (i < Tries && _Win == null);
-                }
-
-                if (_ReturnWinElem == null)
-                {
-                    break;
-                }
-            }
+                _ReturnElem = Win.FindFirst(TreeScope.Descendants,
+                    new PropertyCondition(AutomationElement.AutomationIdProperty, ElemID));
+                ++i;
+                Thread.Sleep(200);
+            } while (i < Tries && _ReturnElem == null);
+            _WinElem = _ReturnElem;
         }
+
+        private void GetWinElemByName(AutomationElement Win, string ElemName, int Tries)
+        {
+            int i = 0;
+            AutomationElement _ReturnElem = null;
+            do
+            {
+                _ReturnElem = Win.FindFirst(TreeScope.Descendants,
+                    new PropertyCondition(AutomationElement.NameProperty, ElemName));
+                ++i;
+                Thread.Sleep(200);
+            } while (i < Tries && _ReturnElem == null);
+            _WinElem = _ReturnElem;
+        }
+
+        [DllImport("user32")]
+        static extern int SetCursorPos(int x, int y);
+
+        [DllImport("user32.dll")]
+
+        static extern void Mouse_event(uint dwFlags, uint dx, uint dy, uint dwData, int dwExtraInfo);
         #endregion
 
         #region Public Functions (Non-Static)
@@ -351,6 +257,99 @@ namespace UIAutoScriptGen
         #endregion
 
         #region Public Functions (Static)
+        public static void MouseClick(string button)
+        {
+            switch (button)
+            {
+                case "left":
+                    Mouse_event((uint)MouseEventFlags.LEFTDOWN, 0, 0, 0, 0);
+                    Mouse_event((uint)MouseEventFlags.LEFTUP, 0, 0, 0, 0);
+                    break;
+                case "right":
+                    Mouse_event((uint)MouseEventFlags.RIGHTDOWN, 0, 0, 0, 0);
+                    Mouse_event((uint)MouseEventFlags.RIGHTUP, 0, 0, 0, 0);
+                    break;
+                case "middle":
+                    Mouse_event((uint)MouseEventFlags.MIDDLEDOWN, 0, 0, 0, 0);
+                    Mouse_event((uint)MouseEventFlags.MIDDLEUP, 0, 0, 0, 0);
+                    break;
+            }
+        }
+
+        public static void WaitElemAppear(string WinName, string WinElemID, int Tries)
+        {
+            int i = 0;
+            AutomationElement _Win;
+            AutomationElement _WinElem;
+            do
+            {
+                _Win = AutomationElement.RootElement.FindFirst
+                (TreeScope.Children, new PropertyCondition(AutomationElement.NameProperty, WinName));
+                ++i;
+                Thread.Sleep(200);
+            } while (i < Tries && _Win == null);
+
+            if (_Win != null)
+            {
+                i = 0;
+                do
+                {
+                    _WinElem = _Win.FindFirst(TreeScope.Descendants,
+                        new PropertyCondition(AutomationElement.AutomationIdProperty, WinElemID));
+                    ++i;
+                    Thread.Sleep(200);
+                } while (i < Tries && _WinElem == null);
+
+                i = 0;
+                while (_WinElem == null && i < Tries)
+                {
+                    _WinElem = _Win.FindFirst(TreeScope.Descendants,
+                        new PropertyCondition(AutomationElement.NameProperty, WinElemID));
+                    ++i;
+                    Thread.Sleep(200);
+                }
+            }
+        }
+
+        public static void SendKeys(string Text)
+        {
+            System.Windows.Forms.SendKeys.SendWait(Text);
+        }
+
+        public static void WaitElemDisappear(String WinName, String WinElem, int Tries)
+        {
+            AutomationElement _Win = null;
+            AutomationElement _ReturnWinElem = null;
+
+            while (true)
+            {
+                int i = 0;
+                do
+                {
+                    _Win = AutomationElement.RootElement.FindFirst
+                    (TreeScope.Children, new PropertyCondition(AutomationElement.NameProperty, WinName));
+                    ++i;
+                    Thread.Sleep(200);
+                } while (i < Tries && _Win == null);
+
+                if (_Win != null)
+                {
+                    do
+                    {
+                        _ReturnWinElem = AutomationElement.RootElement.FindFirst
+                        (TreeScope.Children, new PropertyCondition(AutomationElement.NameProperty, WinElem));
+                        ++i;
+                        Thread.Sleep(200);
+                    } while (i < Tries && _Win == null);
+                }
+
+                if (_ReturnWinElem == null)
+                {
+                    break;
+                }
+            }
+        }
+
         public static Hashtable GetCurrentFocusedDetails()
         {
             AutomationElement _ReturnElement = null;
@@ -364,16 +363,6 @@ namespace UIAutoScriptGen
             _ReturnTable.Add("ItemType", _ReturnElement.Current.ItemType);
             _ReturnTable.Add("ParentName", Process.GetProcessById(_ReturnElement.Current.ProcessId).MainWindowTitle);
             return _ReturnTable;
-
-            StringBuilder RetString = new StringBuilder();
-            RetString.AppendLine(String.Format("Name: {0}", _ReturnElement.Current.Name));
-            RetString.AppendLine(String.Format("AutoID: {0}", _ReturnElement.Current.AutomationId));
-            RetString.AppendLine(String.Format("Class : {0}", _ReturnElement.Current.ClassName));
-            RetString.AppendLine(String.Format("ElemType : {0}", _ReturnElement.Current.ControlType.ProgrammaticName));
-            RetString.AppendLine(String.Format("ProcID : {0}", _ReturnElement.Current.ProcessId));
-            RetString.AppendLine(String.Format("ItemType : {0}", _ReturnElement.Current.ItemType));
-            RetString.AppendLine(String.Format("ParentName : {0}", Process.GetProcessById(_ReturnElement.Current.ProcessId).MainWindowTitle));
-            MessageBox.Show(RetString.ToString());
         }
 
         public static Hashtable GetMouseOverElemDetails()
@@ -393,17 +382,6 @@ namespace UIAutoScriptGen
             _ReturnTable.Add("Element", _ReturnElement);
 
             return _ReturnTable;
-
-
-            StringBuilder RetString = new StringBuilder();
-            RetString.AppendLine(String.Format("Name: {0}", _ReturnElement.Current.Name));
-            RetString.AppendLine(String.Format("AutoID: {0}", _ReturnElement.Current.AutomationId));
-            RetString.AppendLine(String.Format("Class : {0}", _ReturnElement.Current.ClassName));
-            RetString.AppendLine(String.Format("ElemType : {0}", _ReturnElement.Current.ControlType.ProgrammaticName));
-            RetString.AppendLine(String.Format("ProcID : {0}", _ReturnElement.Current.ProcessId));
-            RetString.AppendLine(String.Format("ItemType : {0}", _ReturnElement.Current.ItemType));
-            RetString.AppendLine(String.Format("ParentName : {0}", Process.GetProcessById(_ReturnElement.Current.ProcessId).MainWindowTitle));
-            MessageBox.Show(RetString.ToString());
         }
 
         public static AutomationElement GetCurrentPointedElement()

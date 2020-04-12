@@ -24,7 +24,7 @@ namespace UIAutoScriptGen
     public partial class MainWindow : Window
     {
 
-        string openFileName;
+        private string openFileName;
         private string OpenFileName
         {
             get
@@ -173,7 +173,7 @@ namespace UIAutoScriptGen
             var SupportedPatterns = ((AutomationElement)_ElemHash["Element"]).GetSupportedPatterns();
 
             //Add buttons to SupportPattern stackpanel.
-            foreach (var Pattern in SupportedPatterns)
+            foreach (AutomationPattern Pattern in SupportedPatterns)
             {
                 Button but = new Button()
                 {
@@ -188,6 +188,17 @@ namespace UIAutoScriptGen
                 //Adds the button to ControlType (SupportedPattern) stackpanel.
                 patternWin.stkControlTypes.Children.Add(but);
             }
+
+            //For other common element based actions.
+            Button CommonButton = new Button()
+            {
+                Background = Brushes.White,
+                BorderBrush = Brushes.DarkBlue,
+            };
+            CommonButton.Content = "Common";
+            CommonButton.Click += delegate (object sender, RoutedEventArgs e) { stkItemClicked(sender, e, _ElemHash, CommonButton, _Elem); };
+            patternWin.stkControlTypes.Children.Add(CommonButton);
+
             if (!patternWin.IsVisible) { patternWin.ShowDialog(); }
         }
         #endregion
@@ -205,85 +216,80 @@ namespace UIAutoScriptGen
             string StkClickedButton = e.Source.ToString().Split(':')[1].Trim();
 
             Hashtable ControlsNData = new Hashtable();
-            string[] NeededData = null;
             List<string> SubControls = new List<string>();
+            string[] NeededData;
             if (StkClickedButton == "InvokePatternIdentifiers.Pattern")
             {
                 NeededData = new string[] { };
                 ControlsNData.Add("InvokeClick", NeededData);
-                SubControls.Add("InvokeClick");
             }
             else if (StkClickedButton == "ExpandCollapsePatternIdentifiers.Pattern")
             {
                 NeededData = new string[] { };
                 ControlsNData.Add("Expand", NeededData);
-                SubControls.Add("Expand");
                 ControlsNData.Add("Collapse", NeededData);
-                SubControls.Add("Collapse");
             }
             else if (StkClickedButton == "WindowPatternIdentifiers.Pattern")
             {
                 NeededData = new string[] { };
-                SubControls.Add("WinMaxState");
                 ControlsNData.Add("WinMaxState", NeededData);
-                SubControls.Add("WinMinState");
                 ControlsNData.Add("WinMinState", NeededData);
-                SubControls.Add("WinNormalState");
                 ControlsNData.Add("WinNormalState", NeededData);
-                SubControls.Add("Close");
                 ControlsNData.Add("Close", NeededData);
             }
             else if (StkClickedButton == "ScrollPatternIdentifiers.Pattern")
             {
                 NeededData = new string[] { "horizontalAmount", "verticalAmount" };
-                SubControls.Add("Scroll");
                 ControlsNData.Add("Scroll", NeededData);
 
                 NeededData = new string[] { "horizontalAmount" };
-                SubControls.Add("ScrollHorizontal");
                 ControlsNData.Add("ScrollHorizontal", NeededData);
 
                 NeededData = new string[] { "verticalAmount" };
-                SubControls.Add("ScrollVertical");
                 ControlsNData.Add("ScrollVertical", NeededData);
 
                 NeededData = new string[] { "horizontalPercent", "verticalPercent" };
-                SubControls.Add("SetScrollPercent");
                 ControlsNData.Add("SetScrollPercent", NeededData);
             }
 
             else if (StkClickedButton == "ScrollItemPatternIdentifiers.Pattern")
             {
                 NeededData = new string[] { };
-                SubControls.Add("ScrollToView");
                 ControlsNData.Add("ScrollToView", NeededData);
             }
 
             else if (StkClickedButton == "ValuePatternIdentifiers.Pattern")
             {
                 NeededData = new string[] { "Text" };
-                SubControls.Add("SetElemText");
                 ControlsNData.Add("SetElemText", NeededData);
             }
 
             else if (StkClickedButton == "TextPatternIdentifiers.Pattern")
             {
                 NeededData = new string[] { };
-                SubControls.Add("GetSelectedText");
                 ControlsNData.Add("GetSelectedText", NeededData);
             }
 
             else if (StkClickedButton == "TogglePatternIdentifiers.Pattern")
             {
                 NeededData = new string[] { };
-                SubControls.Add("Toggle");
                 ControlsNData.Add("Toggle", NeededData);
+            }
+
+            else if (StkClickedButton == "Common")
+            {
+                NeededData = new string[] { "ClickType" };
+                ControlsNData.Add("ElementClick", NeededData);
+                ControlsNData.Add("MouseToElement", NeededData);
+
+                NeededData = new string[] { "Timeout" };
+                ControlsNData.Add("WaitDisappear", NeededData);
+                ControlsNData.Add("WaitAppear", NeededData);
             }
 
             else
             {
                 NeededData = new string[] { "Undefined" };
-                SubControls.Add("Undefined");
                 ControlsNData.Add(StkClickedButton, NeededData);
             }
 
@@ -291,7 +297,6 @@ namespace UIAutoScriptGen
             AddSubMenus(ControlsNData, _ElemHash, _Elem);
 
         }
-
 
         /// <summary>
         /// This function creates each button, adds the button's functionality and adds the button to the
@@ -383,41 +388,9 @@ namespace UIAutoScriptGen
             string Datum = string.Join(",", Data);
 
             lstElemList.Items.Add(new ElemListItem(Btn.Content.ToString(), _ElemHash, Datum));
+            dataWindow.Hide();
             e.Handled = true;
         }
-
-        #region Unused.
-        /*
-        //The two functions below are not used as of now since we also need DataWindow.
-        /// <summary>
-        /// This function creates each button, adds the button to the SubControl stackpanel.
-        /// </summary>
-        /// <param name="SubControls"></param>
-        /// <param name="_Elem"></param>
-        private void AddSubMenus(List<string> SubControls, Hashtable _Elem)
-        {
-            patternWin.stkSubControlTypes.Children.Clear();
-            foreach (var SubControl in SubControls)
-            {
-                Button btnSubControl = new Button()
-                {
-                    Content = SubControl,
-                    Background = Brushes.White,
-                    BorderBrush = Brushes.DarkBlue,
-                };
-                btnSubControl.Click += delegate (object senderr, RoutedEventArgs ee) { BtnSubControl_Click(senderr, ee, _Elem, btnSubControl); };
-                patternWin.stkSubControlTypes.Children.Add(btnSubControl);
-            }
-        }
-
-        private void BtnSubControl_Click(object sender, RoutedEventArgs e, Hashtable _Elem, Button Btn)
-        {
-            lstElemList.Items.Add(new ElemListItem(Btn.Content.ToString(), _Elem, ""));
-            patternWin.Hide();
-        }
-        //The two functions above are not used as of now since we also need DataWindow.
-        */
-        #endregion
 
         protected override void OnClosed(EventArgs e)
         {
