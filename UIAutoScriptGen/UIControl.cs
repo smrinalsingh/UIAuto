@@ -42,55 +42,70 @@ namespace UIAutoScriptGen
                 _WinState = GetWindowPattern(_Window).Current.WindowInteractionState;
             }
         }
+
+        public UIControl(string WinName, string ElemName, string ElemClass, string ElemAutoID, int TimeOut)
+        {
+            //Timeout in seconds.
+            GetUIWindow(WinName, TimeOut);
+            if (_Window != null)
+            {
+                GetWinElem(_Window, ElemName, ElemClass, ElemAutoID);
+            }
+        }
         #endregion
 
         #region Pattern Definitions
-        private static InvokePattern GetInvokePattern(AutomationElement element)
+        public static InvokePattern GetInvokePattern(AutomationElement element)
         {
             return element.GetCurrentPattern(InvokePattern.Pattern) as InvokePattern;
         }
 
-        private static ValuePattern GetValuePattern(AutomationElement element)
+        public static ValuePattern GetValuePattern(AutomationElement element)
         {
             return element.GetCurrentPattern(ValuePattern.Pattern) as ValuePattern;
         }
 
-        private static TogglePattern GetTogglePattern(AutomationElement element)
+        public static TogglePattern GetTogglePattern(AutomationElement element)
         {
             return element.GetCurrentPattern(TogglePattern.Pattern) as TogglePattern;
         }
 
-        private static ScrollPattern GetScrollPattern(AutomationElement element)
+        public static ScrollPattern GetScrollPattern(AutomationElement element)
         {
             return element.GetCurrentPattern(ScrollPattern.Pattern) as ScrollPattern;
         }
 
-        private static TextPattern GetTextPattern(AutomationElement element)
+        public static ScrollItemPattern GetScrollItemPattern(AutomationElement element)
+        {
+            return element.GetCurrentPattern(ScrollItemPattern.Pattern) as ScrollItemPattern;
+        }
+
+        public static TextPattern GetTextPattern(AutomationElement element)
         {
             return element.GetCurrentPattern(TextPattern.Pattern) as TextPattern;
         }
 
-        private static SynchronizedInputPattern GetSynchronizedInputPattern(AutomationElement element)
+        public static SynchronizedInputPattern GetSynchronizedInputPattern(AutomationElement element)
         {
             return element.GetCurrentPattern(SynchronizedInputPattern.Pattern) as SynchronizedInputPattern;
         }
 
-        private static SelectionPattern GetSelectionPattern(AutomationElement element)
+        public static SelectionPattern GetSelectionPattern(AutomationElement element)
         {
             return element.GetCurrentPattern(SelectionPattern.Pattern) as SelectionPattern;
         }
 
-        private static SelectionItemPattern GetSelectionItemPattern(AutomationElement element)
+        public static SelectionItemPattern GetSelectionItemPattern(AutomationElement element)
         {
             return element.GetCurrentPattern(SelectionItemPattern.Pattern) as SelectionItemPattern;
         }
 
-        private static ExpandCollapsePattern GetExpandCollapsePattern(AutomationElement element)
+        public static ExpandCollapsePattern GetExpandCollapsePattern(AutomationElement element)
         {
             return element.GetCurrentPattern(ExpandCollapsePattern.Pattern) as ExpandCollapsePattern;
         }
 
-        private static WindowPattern GetWindowPattern(AutomationElement element)
+        public static WindowPattern GetWindowPattern(AutomationElement element)
         {
             return element.GetCurrentPattern(WindowPattern.Pattern) as WindowPattern;
         }
@@ -106,23 +121,9 @@ namespace UIAutoScriptGen
                 _ReturnElem = AutomationElement.RootElement.FindFirst
                 (TreeScope.Children, new PropertyCondition(AutomationElement.NameProperty, WinName));
                 ++i;
-                Thread.Sleep(200);
+                Thread.Sleep(1000);
             } while (i < Tries && _ReturnElem == null);
             _Window = _ReturnElem;
-        }
-
-        private void GetWinElem(AutomationElement Win, string ElemID, int Tries)
-        {
-            int i = 0;
-            AutomationElement _ReturnElem = null;
-            do
-            {
-                _ReturnElem = Win.FindFirst(TreeScope.Descendants,
-                    new PropertyCondition(AutomationElement.AutomationIdProperty, ElemID));
-                ++i;
-                Thread.Sleep(200);
-            } while (i < Tries && _ReturnElem == null);
-            _WinElem = _ReturnElem;
         }
 
         private void GetWinElemByName(AutomationElement Win, string ElemName, int Tries)
@@ -139,12 +140,37 @@ namespace UIAutoScriptGen
             _WinElem = _ReturnElem;
         }
 
+        private void GetWinElem(AutomationElement Win, string ElemID, int Tries)
+        {
+            int i = 0;
+            AutomationElement _ReturnElem = null;
+            do
+            {
+                _ReturnElem = Win.FindFirst(TreeScope.Descendants,
+                    new PropertyCondition(AutomationElement.AutomationIdProperty, ElemID));
+                ++i;
+                Thread.Sleep(200);
+            } while (i < Tries && _ReturnElem == null);
+            _WinElem = _ReturnElem;
+        }
+
+        private void GetWinElem(AutomationElement Win, string ElemName, string ElemClass, string ElemAutoID)
+        {
+            System.Windows.Automation.Condition cElem = new AndCondition(
+                new PropertyCondition(AutomationElement.NameProperty, ElemName),
+                new PropertyCondition(AutomationElement.ClassNameProperty, ElemClass),
+                new PropertyCondition(AutomationElement.AutomationIdProperty, ElemAutoID));
+            AutomationElement element = Win.FindFirst(TreeScope.Descendants, cElem);
+
+            _WinElem = element;
+        }
+
         [DllImport("user32")]
         static extern int SetCursorPos(int x, int y);
 
         [DllImport("user32.dll")]
 
-        static extern void Mouse_event(uint dwFlags, uint dx, uint dy, uint dwData, int dwExtraInfo);
+        static extern void mouse_event(uint dwFlags, uint dx, uint dy, uint dwData, int dwExtraInfo);
         #endregion
 
         #region Public Functions (Non-Static)
@@ -219,7 +245,7 @@ namespace UIAutoScriptGen
 
         public MousePoint ClickablePoint()
         {
-            System.Windows.Rect ElemRect = _WinElem.Current.BoundingRectangle;
+            Rect ElemRect = _WinElem.Current.BoundingRectangle;
             int X_Center = (int)(ElemRect.X + ElemRect.Width / 2);
             int Y_Center = (int)(ElemRect.Y + ElemRect.Height / 2);
             MousePoint point = new MousePoint(X_Center, Y_Center);
@@ -257,21 +283,49 @@ namespace UIAutoScriptGen
         #endregion
 
         #region Public Functions (Static)
+        public static MousePoint ClickablePoint(AutomationElement element)
+        {
+            Rect ElemRect = element.Current.BoundingRectangle;
+            int X_Center = (int)(ElemRect.X + ElemRect.Width / 2);
+            int Y_Center = (int)(ElemRect.Y + ElemRect.Height / 2);
+            MousePoint point = new MousePoint(X_Center, Y_Center);
+            return point;
+        }
+
+        public static void MouseToElem(AutomationElement element)
+        {
+            try
+            {
+                MousePoint point = ClickablePoint(element);
+                SetCursorPos(point.Xp, point.Yp);
+            }
+            catch
+            {
+                throw new Exception("NoClickablePoint");
+            }
+        }
+
+        public static void ElemClick(AutomationElement element, string mouseButton)
+        {
+            MouseToElem(element);
+            MouseClick(mouseButton);
+        }
+
         public static void MouseClick(string button)
         {
             switch (button)
             {
                 case "left":
-                    Mouse_event((uint)MouseEventFlags.LEFTDOWN, 0, 0, 0, 0);
-                    Mouse_event((uint)MouseEventFlags.LEFTUP, 0, 0, 0, 0);
+                    mouse_event((uint)MouseEventFlags.LEFTDOWN, 0, 0, 0, 0);
+                    mouse_event((uint)MouseEventFlags.LEFTUP, 0, 0, 0, 0);
                     break;
                 case "right":
-                    Mouse_event((uint)MouseEventFlags.RIGHTDOWN, 0, 0, 0, 0);
-                    Mouse_event((uint)MouseEventFlags.RIGHTUP, 0, 0, 0, 0);
+                    mouse_event((uint)MouseEventFlags.RIGHTDOWN, 0, 0, 0, 0);
+                    mouse_event((uint)MouseEventFlags.RIGHTUP, 0, 0, 0, 0);
                     break;
                 case "middle":
-                    Mouse_event((uint)MouseEventFlags.MIDDLEDOWN, 0, 0, 0, 0);
-                    Mouse_event((uint)MouseEventFlags.MIDDLEUP, 0, 0, 0, 0);
+                    mouse_event((uint)MouseEventFlags.MIDDLEDOWN, 0, 0, 0, 0);
+                    mouse_event((uint)MouseEventFlags.MIDDLEUP, 0, 0, 0, 0);
                     break;
             }
         }
@@ -313,6 +367,12 @@ namespace UIAutoScriptGen
 
         public static void SendKeys(string Text)
         {
+            System.Windows.Forms.SendKeys.SendWait(Text);
+        }
+
+        public static void SendKeys(AutomationElement element, string Text, bool TryClickElement)
+        {
+            if (TryClickElement) { ElemClick(element, "left"); }
             System.Windows.Forms.SendKeys.SendWait(Text);
         }
 

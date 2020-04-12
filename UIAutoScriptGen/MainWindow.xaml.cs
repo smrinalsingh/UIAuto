@@ -216,7 +216,6 @@ namespace UIAutoScriptGen
             string StkClickedButton = e.Source.ToString().Split(':')[1].Trim();
 
             Hashtable ControlsNData = new Hashtable();
-            List<string> SubControls = new List<string>();
             string[] NeededData;
             if (StkClickedButton == "InvokePatternIdentifiers.Pattern")
             {
@@ -251,25 +250,21 @@ namespace UIAutoScriptGen
                 NeededData = new string[] { "horizontalPercent", "verticalPercent" };
                 ControlsNData.Add("SetScrollPercent", NeededData);
             }
-
             else if (StkClickedButton == "ScrollItemPatternIdentifiers.Pattern")
             {
                 NeededData = new string[] { };
                 ControlsNData.Add("ScrollToView", NeededData);
             }
-
             else if (StkClickedButton == "ValuePatternIdentifiers.Pattern")
             {
                 NeededData = new string[] { "Text" };
                 ControlsNData.Add("SetElemText", NeededData);
             }
-
             else if (StkClickedButton == "TextPatternIdentifiers.Pattern")
             {
                 NeededData = new string[] { };
                 ControlsNData.Add("GetSelectedText", NeededData);
             }
-
             else if (StkClickedButton == "TogglePatternIdentifiers.Pattern")
             {
                 NeededData = new string[] { };
@@ -278,13 +273,16 @@ namespace UIAutoScriptGen
 
             else if (StkClickedButton == "Common")
             {
-                NeededData = new string[] { "ClickType" };
+                NeededData = new string[] { "MouseButton" };
                 ControlsNData.Add("ElementClick", NeededData);
                 ControlsNData.Add("MouseToElement", NeededData);
 
                 NeededData = new string[] { "Timeout" };
                 ControlsNData.Add("WaitDisappear", NeededData);
                 ControlsNData.Add("WaitAppear", NeededData);
+
+                NeededData = new string[] { "Text", "ToClick" };
+                ControlsNData.Add("UseKeyboard", NeededData);
             }
 
             else
@@ -293,7 +291,6 @@ namespace UIAutoScriptGen
                 ControlsNData.Add(StkClickedButton, NeededData);
             }
 
-            //AddSubMenus(SubControls, _Elem);
             AddSubMenus(ControlsNData, _ElemHash, _Elem);
 
         }
@@ -504,6 +501,10 @@ namespace UIAutoScriptGen
                 SaveName.ShowDialog();
 
                 OpenFileName = SaveName.FileName;
+
+                Stream stream = new FileStream(OpenFileName, FileMode.Create, FileAccess.Write);
+                formatter.Serialize(stream, ScriptLines);
+                stream.Close();
             }
 
             else if (OpenFileName != "")
@@ -521,6 +522,17 @@ namespace UIAutoScriptGen
                     MessageBox.Show("File not saved!\nError: " + ee.Message);
                 }
             }
+        }
+
+        private void btnRun_Click(object sender, RoutedEventArgs e)
+        {
+            List<ElemListItem> ScriptLines = new List<ElemListItem>();
+            ScriptLines.AddRange(lstElemList.Items.OfType<ElemListItem>());
+            foreach (ElemListItem line in ScriptLines)
+            {
+                Command.RunItem(line, 10);
+            }
+
         }
     }
 

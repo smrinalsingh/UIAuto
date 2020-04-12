@@ -38,7 +38,7 @@
                 <Border Margin="10,230,24,29" BorderBrush="Black" BorderThickness="1">
                     <TextBlock x:Name="txtbInstructions" Margin="5,5,5,5" TextWrapping="Wrap" TextAlignment="Justify"/>
                 </Border>
-                <Button x:Name="btnRunSelected" Content="Run Selected" HorizontalAlignment="Left" Margin="10,35,0,0" VerticalAlignment="Top" Width="110"/>
+                <Button x:Name="btnRun" Content="Run" HorizontalAlignment="Left" Margin="10,35,0,0" VerticalAlignment="Top" Width="110" Click="btnRun_Click"/>
                 <Button x:Name="btnSaveScript" Content="Save" HorizontalAlignment="Left" Margin="125,205,0,0" VerticalAlignment="Top" Width="110" Click="btnSaveScript_Click"/>
                 <Button x:Name="btnLoadScript" Content="Load" HorizontalAlignment="Left" Margin="10,205,0,0" VerticalAlignment="Top" Width="110" Click="btnLoadScript_Click"/>
             </Grid>
