@@ -7,6 +7,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Input;
+using System.Xml;
 
 namespace UIAutoScriptGen
 {
@@ -52,9 +53,47 @@ namespace UIAutoScriptGen
                 GetWinElem(_Window, ElemName, ElemClass, ElemAutoID);
             }
         }
-        #endregion
 
-        
+        public UIControl(XmlDocument XMLDoc)
+        {
+            _WinElem = GetAutoElemFromXML(XMLDoc);
+        }
+
+        public UIControl(string XMLStr)
+        {
+            XmlDocument XMLDoc = new XmlDocument();
+            XMLDoc.LoadXml(XMLStr);
+            _WinElem = GetAutoElemFromXML(XMLDoc);
+        }
+
+        public static AutomationElement GetAutoElemFromXML(XmlDocument XML)
+        {
+            AutomationElement _ReturnElement = null;
+            //As programmed, each XMLDoc contains multiple nodes with attributes
+            //containing the element specific details. 
+
+            //Lets start with getting all the nodes.
+            XmlNodeList xmlNodeList = XML.ChildNodes;
+            
+            foreach(XmlNode xmlNode in xmlNodeList)
+            {
+                XmlAttributeCollection NodeAttrs = xmlNode.Attributes;
+                AndCondition AllConditions = new AndCondition(new PropertyCondition(AutomationElement.NameProperty, NodeAttrs["Name"].Value),
+                    new PropertyCondition(AutomationElement.AutomationIdProperty, NodeAttrs["AutoID"].Value),
+                    new PropertyCondition(AutomationElement.ControlTypeProperty, NodeAttrs["CtrlType"].Value),
+                    new PropertyCondition(AutomationElement.ClassNameProperty, NodeAttrs["Class"].Value));
+
+                _ReturnElement = AutomationElement.RootElement.FindFirst(TreeScope.Children,
+                    AllConditions);
+            }
+
+            return _ReturnElement;
+        }
+
+        //Both the constructors above dependant on XML have similar process
+        //except for the loading from string to XMLDocument needed for one.
+
+        #endregion        
 
         #region Private Functions
         private void GetUIWindow(string WinName, int Tries)
@@ -118,76 +157,6 @@ namespace UIAutoScriptGen
         static extern void mouse_event(uint dwFlags, uint dx, uint dy, uint dwData, int dwExtraInfo);
         #endregion
 
-        #region Public Functions (Non-Static)
-        public string Type()
-        {
-            StringBuilder str = new StringBuilder();
-            if (Value == true)
-            {
-                foreach (AutomationPattern pattern in _WinElem.GetSupportedPatterns())
-                {
-                    str.AppendLine(pattern.ProgrammaticName);
-                }
-            }
-            return str.ToString();
-        }
-
-        public void Invoke()
-        {
-            if (_WinElem != null) { GetPattern.GetInvokePattern(_WinElem).Invoke(); }
-        }
-
-        public void Toggle()
-        {
-            if (_WinElem != null) { GetPattern.GetTogglePattern(_WinElem).Toggle(); }
-        }
-
-        public void SyncInput()
-        {
-            if (_WinElem != null) { GetPattern.GetSynchronizedInputPattern(_WinElem).StartListening(SynchronizedInputType.MouseLeftButtonDown); }
-        }
-
-        public void ValueSet(string Text)
-        {
-            if (_WinElem != null) { GetPattern.GetValuePattern(_WinElem).SetValue(Text); }
-        }
-
-        public void ExpCol()
-        {
-            ExpandCollapsePattern ExpColPat = GetPattern.GetExpandCollapsePattern(_WinElem);
-            if (_WinElem != null)
-            {
-                if (ExpColPat.Current.ExpandCollapseState == ExpandCollapseState.Collapsed)
-                {
-                    ExpColPat.Expand();
-                }
-                else if (ExpColPat.Current.ExpandCollapseState == ExpandCollapseState.Expanded)
-                {
-                    ExpColPat.Collapse();
-                }
-            }
-        }
-
-        public void Win()
-        {
-            if (_Window != null)
-            {
-                WindowPattern WinPattern = GetPattern.GetWindowPattern(_Window);
-                if (WinPattern.Current.WindowVisualState == WindowVisualState.Normal)
-                {
-                    WinPattern.SetWindowVisualState(WindowVisualState.Maximized);
-                }
-                else if (WinPattern.Current.WindowVisualState == WindowVisualState.Maximized)
-                {
-                    WinPattern.SetWindowVisualState(WindowVisualState.Minimized);
-                }
-                else if (WinPattern.Current.WindowVisualState == WindowVisualState.Minimized)
-                {
-                    WinPattern.SetWindowVisualState(WindowVisualState.Normal);
-                }
-            }
-        }
-
         public MousePoint ClickablePoint()
         {
             Rect ElemRect = _WinElem.Current.BoundingRectangle;
@@ -225,7 +194,7 @@ namespace UIAutoScriptGen
             if (TryClickElement) { ElemClick(); }
             System.Windows.Forms.SendKeys.SendWait(Text);
         }
-        #endregion
+        
 
         #region Public Functions (Static)
         public static MousePoint ClickablePoint(AutomationElement element)

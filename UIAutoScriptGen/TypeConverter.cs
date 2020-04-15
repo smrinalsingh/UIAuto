@@ -72,6 +72,7 @@ namespace UIAutoScriptGen
             _ReturnTable.Add("ItemType", element.Current.ItemType);
             _ReturnTable.Add("ParentName", UIControl.GetTopLevelWindow(element).Current.Name);
             _ReturnTable.Add("Element", element);
+            _ReturnTable.Add("ElemXML", BeautifyXMLDoc(AutoElemToXMLElem(element))); 
             return _ReturnTable;
         }
         
@@ -88,16 +89,18 @@ namespace UIAutoScriptGen
 
                 XmlAttribute NameAttr = XML.CreateAttribute("Name");
                 XmlAttribute AutoIDAttr = XML.CreateAttribute("AutoID");
+                XmlAttribute ClassAttr = XML.CreateAttribute("Class");
 
                 NameAttr.Value = level["Name"].ToString();
                 AutoIDAttr.Value = level["AutoID"].ToString();
+                ClassAttr.Value = level["Class"].ToString();
 
                 Element.Attributes.Append(NameAttr);
                 Element.Attributes.Append(AutoIDAttr);
+                Element.Attributes.Append(ClassAttr);
 
                 lastNode = Element;
             }
-
             return XML;
         }
 

@@ -11,8 +11,6 @@ namespace UIAutoScriptGen
 {
     class HierarchyActions
     {
-        AutomationElement _element;
-
         #region Static functions.
         public static List<Hashtable> Tree(AutomationElement _element)
         {
@@ -24,6 +22,7 @@ namespace UIAutoScriptGen
             CurrElemHash.Add("Name", _element.Current.Name);
             CurrElemHash.Add("CtrlType", _element.Current.ControlType.ProgrammaticName);
             CurrElemHash.Add("AutoID", _element.Current.AutomationId);
+            CurrElemHash.Add("Class", _element.Current.ClassName);
 
             ParentDetails.Add(CurrElemHash);
 
@@ -33,6 +32,7 @@ namespace UIAutoScriptGen
                 CurrElemHash["Name"] = _parent.Current.Name;
                 CurrElemHash["CtrlType"] = _parent.Current.ControlType.ProgrammaticName;
                 CurrElemHash["AutoID"] = _parent.Current.AutomationId;
+                CurrElemHash["Class"] = _parent.Current.ClassName;
 
                 ParentDetails.Add(CurrElemHash);
                 

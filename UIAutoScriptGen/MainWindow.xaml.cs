@@ -61,6 +61,7 @@ namespace UIAutoScriptGen
                 Title = "Automation Script Generator";
             }
         }
+
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
@@ -164,9 +165,8 @@ namespace UIAutoScriptGen
             //throw new NotImplementedException();
             var PointedElem = UIControl.GetCurrentPointedElement();
             var ElemXML = TypeConverter.AutoElemToXMLElem(PointedElem);
-            string XMLString = TypeConverter.BeautifyXMLDoc(ElemXML);
 
-            MessageBox.Show(XMLString);
+            MessageBox.Show(PointedElem.Current.ControlType.ToString());
         }
 
         private void OnF9Pressed()
@@ -321,6 +321,7 @@ namespace UIAutoScriptGen
         /// SubControl stackpanel.
         /// </summary>
         /// <param name="ControlsNData"></param>
+        /// <param name="_ElemHash"></param>
         /// <param name="_Elem"></param>
         private void AddSubMenus(Hashtable ControlsNData, Hashtable _ElemHash, AutomationElement _Elem)
         {
@@ -602,5 +603,5 @@ namespace UIAutoScriptGen
 
             MessageBox.Show(TypeConverter.HashToString(ElemHash));
         }
-    }  
+    }
 }

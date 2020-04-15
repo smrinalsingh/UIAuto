@@ -18,7 +18,7 @@ namespace UIAutoScriptGen
         public string Data { get; set; }
         public string ElemXMLTree { get; set; }
 
-        public ElemListItem(string Act, string ElName, string ElClass, string ElAutoID, string WName, string Dat)
+        public ElemListItem(string Act, string ElName, string ElClass, string ElAutoID, string WName, string Dat, string ElemXML)
         {
             Action = Act;
             ElemName = ElName;
@@ -26,6 +26,7 @@ namespace UIAutoScriptGen
             ElemAutoID = ElAutoID;
             WinName = WName;
             Data = Dat;
+            ElemXMLTree = ElemXML;
         }
 
         public ElemListItem(string SelectedAction, Hashtable ElemDetails, string Dat)
@@ -36,6 +37,7 @@ namespace UIAutoScriptGen
             ElemAutoID = ElemDetails["AutoID"].ToString();
             WinName = ElemDetails["ParentName"].ToString();
             Data = Dat;
+            ElemXMLTree = ElemDetails["ElemXML"].ToString();
         }
 
         public ElemListItem() { }

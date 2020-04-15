@@ -29,6 +29,12 @@
             </Style>
         </Grid.Resources>
         <ListView x:Name="lstElemList" HorizontalAlignment="Left" Height="368" Margin="10,10,0,0" VerticalAlignment="Top" Width="401" BorderBrush="#FF364E9E" MouseDoubleClick="lstElemList_DoubleClick">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="Height" Value="50"/>
+                    <Setter Property="Foreground" Value="Gray"/>
+                </Style>
+            </ListView.ItemContainerStyle>
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Action" Width="65" DisplayMemberBinding="{Binding Action}"/>
@@ -37,6 +43,7 @@
                     <GridViewColumn Header="Auto ID" Width="65" DisplayMemberBinding="{Binding ElemAutoID}"/>
                     <GridViewColumn Header="Window Name" Width="83" DisplayMemberBinding="{Binding WinName}"/>
                     <GridViewColumn Header="Data" Width="52" DisplayMemberBinding="{Binding Data}"/>
+                    <GridViewColumn Header="XML" Width="52" DisplayMemberBinding="{Binding ElemXMLTree}"/>
                 </GridView>
             </ListView.View>
         </ListView>
