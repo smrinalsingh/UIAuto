@@ -10,9 +10,12 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Interop;
 using System.Windows.Media;
 
@@ -77,6 +80,8 @@ namespace UIAutoScriptGen
             _source.AddHook(HwndHook);
             IntPtr Handle = new WindowInteropHelper(this).Handle;
             RegisterHotKey(Handle, 1, (uint)KeyboardKeys.Ctrl, (uint)KeyboardKeys.F10);
+            RegisterHotKey(Handle, 2, (uint)KeyboardKeys.Ctrl, (uint)KeyboardKeys.F9);
+            RegisterHotKey(Handle, 3, (uint)KeyboardKeys.Ctrl, (uint)KeyboardKeys.F8);
         }
 
         private void PatternWin_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -152,25 +157,38 @@ namespace UIAutoScriptGen
         }
 
         #endregion
+
+
         private void OnF8Pressed()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            var PointedElem = UIControl.GetCurrentPointedElement();
+            var ElemXML = TypeConverter.AutoElemToXMLElem(PointedElem);
+            string XMLString = TypeConverter.BeautifyXMLDoc(ElemXML);
+
+            MessageBox.Show(XMLString);
         }
 
         private void OnF9Pressed()
         {
-            throw new NotImplementedException();
+            Hashtable ElemDetails = UIControl.GetMouseOverElemDetails();
+            StringBuilder Details = new StringBuilder();
+
+            foreach (string key in ElemDetails.Keys)
+            {
+                Details.AppendLine(key + ": " + ElemDetails[key]);
+            }
+            MessageBox.Show(Details.ToString());
         }
 
         private void OnF10Pressed()
         {
             Hashtable _ElemHash = UIControl.GetMouseOverElemDetails();
-            AutomationElement _Elem = UIControl.GetCurrentPointedElement();
 
             //Clear existing items in both Controls' and SubControls' stackpanels. 
             patternWin.stkControlTypes.Children.Clear();
             patternWin.stkSubControlTypes.Children.Clear();
-            var SupportedPatterns = ((AutomationElement)_ElemHash["Element"]).GetSupportedPatterns();
+            AutomationPattern[] SupportedPatterns = ((AutomationElement)_ElemHash["Element"]).GetSupportedPatterns();
 
             //Add buttons to SupportPattern stackpanel.
             foreach (AutomationPattern Pattern in SupportedPatterns)
@@ -183,7 +201,10 @@ namespace UIAutoScriptGen
                 but.Content = Pattern.ProgrammaticName;
 
                 //This event sends Element Details (Hashtable) and the Button itself to Handler.
-                but.Click += delegate (object sender, RoutedEventArgs e) { stkItemClicked(sender, e, _ElemHash, but, _Elem); };
+                but.Click += delegate (object sender, RoutedEventArgs e)
+                {
+                    stkItemClicked(sender, e, _ElemHash, ((AutomationElement)_ElemHash["Element"]));
+                };
 
                 //Adds the button to ControlType (SupportedPattern) stackpanel.
                 patternWin.stkControlTypes.Children.Add(but);
@@ -196,7 +217,10 @@ namespace UIAutoScriptGen
                 BorderBrush = Brushes.DarkBlue,
             };
             CommonButton.Content = "Common";
-            CommonButton.Click += delegate (object sender, RoutedEventArgs e) { stkItemClicked(sender, e, _ElemHash, CommonButton, _Elem); };
+            CommonButton.Click += delegate (object sender, RoutedEventArgs e)
+            {
+                stkItemClicked(sender, e, _ElemHash, ((AutomationElement)_ElemHash["Element"]));
+            };
             patternWin.stkControlTypes.Children.Add(CommonButton);
 
             if (!patternWin.IsVisible) { patternWin.ShowDialog(); }
@@ -210,7 +234,7 @@ namespace UIAutoScriptGen
         /// <param name="e"></param>
         /// <param name="_Elem"></param>
         /// <param name="but"></param>
-        private void stkItemClicked(object sender, RoutedEventArgs e, Hashtable _ElemHash, Button but, AutomationElement _Elem)
+        private void stkItemClicked(object sender, RoutedEventArgs e, Hashtable _ElemHash, AutomationElement _Elem)
         {
             patternWin.stkSubControlTypes.Children.Clear();
             string StkClickedButton = e.Source.ToString().Split(':')[1].Trim();
@@ -270,7 +294,6 @@ namespace UIAutoScriptGen
                 NeededData = new string[] { };
                 ControlsNData.Add("Toggle", NeededData);
             }
-
             else if (StkClickedButton == "Common")
             {
                 NeededData = new string[] { "MouseButton" };
@@ -284,7 +307,6 @@ namespace UIAutoScriptGen
                 NeededData = new string[] { "Text", "ToClick" };
                 ControlsNData.Add("UseKeyboard", NeededData);
             }
-
             else
             {
                 NeededData = new string[] { "Undefined" };
@@ -292,7 +314,6 @@ namespace UIAutoScriptGen
             }
 
             AddSubMenus(ControlsNData, _ElemHash, _Elem);
-
         }
 
         /// <summary>
@@ -304,29 +325,29 @@ namespace UIAutoScriptGen
         private void AddSubMenus(Hashtable ControlsNData, Hashtable _ElemHash, AutomationElement _Elem)
         {
             patternWin.stkSubControlTypes.Children.Clear();
-            foreach (var SubControl in ControlsNData.Keys)
+            foreach (string SubControl in ControlsNData.Keys)
             {
                 Button btnSubControl = new Button()
                 {
                     Content = SubControl,
-                    Background = Brushes.White,
-                    BorderBrush = Brushes.DarkBlue,
                 };
-                btnSubControl.Click += delegate (object senderr, RoutedEventArgs ee) { BtnSubControl_Click(senderr, ee, _ElemHash, btnSubControl, (string[])ControlsNData[SubControl.ToString()]); };
+                btnSubControl.Click += delegate (object senderr, RoutedEventArgs ee)
+                {
+                    BtnSubControl_Click(senderr, ee, _ElemHash, btnSubControl, (string[])ControlsNData[SubControl]);
+                };
                 patternWin.stkSubControlTypes.Children.Add(btnSubControl);
             }
         }
 
         private void BtnSubControl_Click(object sender, RoutedEventArgs e, Hashtable _ElemHash, Button Btn, string[] SubMenuActions)
         {
-            //lstElemList.Items.Add(new ElemListItem(Btn.Content.ToString(), _Elem));
-
+            //MessageBox.Show(Btn.Content.ToString());
             //If the data needed for selected action is not null, show the window and ask for
             //needed details.
             if (!(SubMenuActions.Length == 0))
             {
                 dataWindow.stkDataLabel.Children.Clear(); dataWindow.stkDataText.Children.Clear();
-                LayControls(dataWindow.stkDataLabel, dataWindow.stkDataText, 22, 125, SubMenuActions, Btn, _ElemHash);
+                LayControls(dataWindow.stkDataLabel, dataWindow.stkDataText, SubMenuActions, Btn, _ElemHash);
 
                 dataWindow.Title = Btn.Content.ToString();
                 dataWindow.Show();
@@ -334,7 +355,9 @@ namespace UIAutoScriptGen
             //Else, do not show the DataWindow and proceed with adding the data.
             else
             {
-                lstElemList.Items.Add(new ElemListItem(Btn.Content.ToString(), _ElemHash, null));
+                ElemListItem ToAdd = new ElemListItem(Btn.Content.ToString(), _ElemHash, null);
+                Command.RunItem(ToAdd, 10);
+                lstElemList.Items.Add(ToAdd);
             }
             patternWin.Hide();
         }
@@ -349,10 +372,9 @@ namespace UIAutoScriptGen
         /// <param name="Width"></param>
         /// <param name="SubMenuActions"></param>
         /// <param name="Btn"></param>
-        private void LayControls(StackPanel labelStack, StackPanel textboxStack, int Height, int Width,
+        private void LayControls(StackPanel labelStack, StackPanel textboxStack,
             string[] SubMenuActions, Button Btn, Hashtable _ElemHash)
         {
-
             foreach (string action in SubMenuActions)
             {
                 Label lbl = new Label()
@@ -362,7 +384,6 @@ namespace UIAutoScriptGen
 
                 TextBox txtbx = new TextBox()
                 {
-                    Name = action,
                     Height = lbl.Height + 10,
                     Width = lbl.Width,
                 };
@@ -370,11 +391,17 @@ namespace UIAutoScriptGen
                 labelStack.Children.Add(lbl);
                 textboxStack.Children.Add(txtbx);
             }
+            buttToDataWin = Btn;
+            _elHashToDataWin = _ElemHash;
 
-            dataWindow.btnAddData.Click += delegate (object sender, RoutedEventArgs e) { BtnAddData_Click(sender, e, Btn, _ElemHash); };
+            //RemoveClickEvent(dataWindow.btnAddData);
+            dataWindow.btnAddData.Click += BtnAddData_Click;
         }
 
-        private void BtnAddData_Click(object sender, RoutedEventArgs e, Button Btn, Hashtable _ElemHash)
+        private Button buttToDataWin = null;
+        private Hashtable _elHashToDataWin = null;
+
+        private void BtnAddData_Click(object sender, RoutedEventArgs e)
         {
             List<string> Data = new List<string>();
             UIElementCollection stkTextBoxes = dataWindow.stkDataText.Children;
@@ -384,9 +411,17 @@ namespace UIAutoScriptGen
             }
             string Datum = string.Join(",", Data);
 
-            lstElemList.Items.Add(new ElemListItem(Btn.Content.ToString(), _ElemHash, Datum));
+            ElemListItem ToAdd = new ElemListItem(buttToDataWin.Content.ToString(), _elHashToDataWin, Datum);
+            //MessageBox.Show(buttToDataWin.Content.ToString());
+
+            Command.RunItem(ToAdd, 10);
+            lstElemList.Items.Add(ToAdd);
             dataWindow.Hide();
+
+            //Handling and setting needed data back to normal
             e.Handled = true;
+            buttToDataWin = null;
+            _elHashToDataWin = null;
         }
 
         protected override void OnClosed(EventArgs e)
@@ -461,7 +496,7 @@ namespace UIAutoScriptGen
             FilePath.ShowDialog();
             OpenFileName = FilePath.FileName;
 
-            if (OpenFileName != null && OpenFileName != "") 
+            if (OpenFileName != null && OpenFileName != "")
             {
                 try
                 {
@@ -528,41 +563,44 @@ namespace UIAutoScriptGen
         {
             List<ElemListItem> ScriptLines = new List<ElemListItem>();
             ScriptLines.AddRange(lstElemList.Items.OfType<ElemListItem>());
+
             foreach (ElemListItem line in ScriptLines)
             {
+                lstElemList.SelectedItem = line;
                 Command.RunItem(line, 10);
+                Task.Factory.StartNew(() =>
+                {
+                });
+            }
+        }
+
+        private void btnRunSelected_Click(object sender, RoutedEventArgs e)
+        {
+            List<ElemListItem> SelectedLines = new List<ElemListItem>();
+            SelectedLines.AddRange(lstElemList.SelectedItems.OfType<ElemListItem>());
+            foreach (ElemListItem line in SelectedLines)
+                Command.RunItem(line, 10);
+        }
+
+        private void lstElemList_DoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            DependencyObject obj = (DependencyObject)e.OriginalSource;
+            Hashtable ElemHash = new Hashtable();
+
+            while (obj != null && obj != lstElemList)
+            {
+                if (obj.GetType() == typeof(ListViewItem))
+                {
+                    ElemListItem Selected = (ElemListItem)lstElemList.SelectedItem;
+                    PropertyInfo[] properties = Selected.GetType()
+                                                        .GetProperties();
+                    foreach (PropertyInfo prop in properties)
+                        ElemHash.Add(prop.Name, prop.GetValue(Selected));
+                }
+                obj = VisualTreeHelper.GetParent(obj);
             }
 
+            MessageBox.Show(TypeConverter.HashToString(ElemHash));
         }
-    }
-
-    [Serializable]
-    public class ElemListItem
-    {
-        public string Action { get; set; }
-        public string ElemName { get; set; }
-        public string ElemClass { get; set; }
-        public string ElemAutoID { get; set; }
-        public string WinName { get; set; }
-        public string Data { get; set; }
-        public ElemListItem(string Act, string ElName, string ElClass, string ElAutoID, string WName, string Dat)
-        {
-            Action = Act;
-            ElemName = ElName;
-            ElemClass = ElClass;
-            ElemAutoID = ElAutoID;
-            WinName = WName;
-            Data = Dat;
-        }
-
-        public ElemListItem(string SelectedAction, Hashtable ElemDetails, string Dat)
-        {
-            Action = SelectedAction;
-            ElemName = ElemDetails["Name"].ToString();
-            ElemClass = ElemDetails["Class"].ToString();
-            ElemAutoID = ElemDetails["AutoID"].ToString();
-            WinName = ElemDetails["ParentName"].ToString();
-            Data = Dat;
-        }
-    }
+    }  
 }

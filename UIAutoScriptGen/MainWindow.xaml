@@ -9,7 +9,7 @@
     <Grid>
         <Grid.Resources>
             <Style TargetType="Button">
-                <Setter Property="Background" Value="White"/>
+                <Setter Property="Background" Value="#FFE0E0E0"/>
                 <Setter Property="BorderBrush" Value="#FF364E9E"/>
                 <Style.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
@@ -18,8 +18,17 @@
                     </Trigger>
                 </Style.Triggers>
             </Style>
+            <Style TargetType="Grid">
+                <Setter Property="Background" Value="#FFE0E0E0"></Setter>
+            </Style>
+            <Style TargetType="ListView">
+                <Setter Property="Background" Value="#FFE0E0E0"/>
+            </Style>
+            <Style TargetType="GridViewColumnHeader">
+                <Setter Property="Background" Value="#FFE0E0E0"/>
+            </Style>
         </Grid.Resources>
-        <ListView x:Name="lstElemList" HorizontalAlignment="Left" Height="368" Margin="10,10,0,0" VerticalAlignment="Top" Width="401" BorderBrush="#FF364E9E">
+        <ListView x:Name="lstElemList" HorizontalAlignment="Left" Height="368" Margin="10,10,0,0" VerticalAlignment="Top" Width="401" BorderBrush="#FF364E9E" MouseDoubleClick="lstElemList_DoubleClick">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Action" Width="65" DisplayMemberBinding="{Binding Action}"/>
@@ -33,7 +42,7 @@
         </ListView>
         <Border Margin="416,10,10,7" Background="WhiteSmoke" BorderThickness="1" BorderBrush="#FFC5C5C5">
             <Grid HorizontalAlignment="Left" Height="386" Margin="0,0,0,0" VerticalAlignment="Top" Width="259">
-                <Button x:Name="btnClearAll" Content="Clear All" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="110" Click="btnClearAll_Click" Background="White"/>
+                <Button x:Name="btnClearAll" Content="Clear All" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="110" Click="btnClearAll_Click"/>
                 <Button x:Name="btnClearSelected" Content="Clear Selected" HorizontalAlignment="Left" Margin="125,10,0,0" VerticalAlignment="Top" Width="110" Click="btnClearSelected_Click"/>
                 <Border Margin="10,230,24,29" BorderBrush="Black" BorderThickness="1">
                     <TextBlock x:Name="txtbInstructions" Margin="5,5,5,5" TextWrapping="Wrap" TextAlignment="Justify"/>
@@ -41,6 +50,7 @@
                 <Button x:Name="btnRun" Content="Run" HorizontalAlignment="Left" Margin="10,35,0,0" VerticalAlignment="Top" Width="110" Click="btnRun_Click"/>
                 <Button x:Name="btnSaveScript" Content="Save" HorizontalAlignment="Left" Margin="125,205,0,0" VerticalAlignment="Top" Width="110" Click="btnSaveScript_Click"/>
                 <Button x:Name="btnLoadScript" Content="Load" HorizontalAlignment="Left" Margin="10,205,0,0" VerticalAlignment="Top" Width="110" Click="btnLoadScript_Click"/>
+                <Button x:Name="btnRunSelected" Content="Run Selected" HorizontalAlignment="Left" Margin="125,35,0,0" VerticalAlignment="Top" Width="110" Click="btnRunSelected_Click"/>
             </Grid>
         </Border>
     </Grid>

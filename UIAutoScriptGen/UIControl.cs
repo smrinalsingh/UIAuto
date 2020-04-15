@@ -39,7 +39,7 @@ namespace UIAutoScriptGen
             if (_WinElem != null)
             {
                 Value = true;
-                _WinState = GetWindowPattern(_Window).Current.WindowInteractionState;
+                _WinState = GetPattern.GetWindowPattern(_Window).Current.WindowInteractionState;
             }
         }
 
@@ -54,62 +54,7 @@ namespace UIAutoScriptGen
         }
         #endregion
 
-        #region Pattern Definitions
-        public static InvokePattern GetInvokePattern(AutomationElement element)
-        {
-            return element.GetCurrentPattern(InvokePattern.Pattern) as InvokePattern;
-        }
-
-        public static ValuePattern GetValuePattern(AutomationElement element)
-        {
-            return element.GetCurrentPattern(ValuePattern.Pattern) as ValuePattern;
-        }
-
-        public static TogglePattern GetTogglePattern(AutomationElement element)
-        {
-            return element.GetCurrentPattern(TogglePattern.Pattern) as TogglePattern;
-        }
-
-        public static ScrollPattern GetScrollPattern(AutomationElement element)
-        {
-            return element.GetCurrentPattern(ScrollPattern.Pattern) as ScrollPattern;
-        }
-
-        public static ScrollItemPattern GetScrollItemPattern(AutomationElement element)
-        {
-            return element.GetCurrentPattern(ScrollItemPattern.Pattern) as ScrollItemPattern;
-        }
-
-        public static TextPattern GetTextPattern(AutomationElement element)
-        {
-            return element.GetCurrentPattern(TextPattern.Pattern) as TextPattern;
-        }
-
-        public static SynchronizedInputPattern GetSynchronizedInputPattern(AutomationElement element)
-        {
-            return element.GetCurrentPattern(SynchronizedInputPattern.Pattern) as SynchronizedInputPattern;
-        }
-
-        public static SelectionPattern GetSelectionPattern(AutomationElement element)
-        {
-            return element.GetCurrentPattern(SelectionPattern.Pattern) as SelectionPattern;
-        }
-
-        public static SelectionItemPattern GetSelectionItemPattern(AutomationElement element)
-        {
-            return element.GetCurrentPattern(SelectionItemPattern.Pattern) as SelectionItemPattern;
-        }
-
-        public static ExpandCollapsePattern GetExpandCollapsePattern(AutomationElement element)
-        {
-            return element.GetCurrentPattern(ExpandCollapsePattern.Pattern) as ExpandCollapsePattern;
-        }
-
-        public static WindowPattern GetWindowPattern(AutomationElement element)
-        {
-            return element.GetCurrentPattern(WindowPattern.Pattern) as WindowPattern;
-        }
-        #endregion
+        
 
         #region Private Functions
         private void GetUIWindow(string WinName, int Tries)
@@ -189,27 +134,27 @@ namespace UIAutoScriptGen
 
         public void Invoke()
         {
-            if (_WinElem != null) { GetInvokePattern(_WinElem).Invoke(); }
+            if (_WinElem != null) { GetPattern.GetInvokePattern(_WinElem).Invoke(); }
         }
 
         public void Toggle()
         {
-            if (_WinElem != null) { GetTogglePattern(_WinElem).Toggle(); }
+            if (_WinElem != null) { GetPattern.GetTogglePattern(_WinElem).Toggle(); }
         }
 
         public void SyncInput()
         {
-            if (_WinElem != null) { GetSynchronizedInputPattern(_WinElem).StartListening(SynchronizedInputType.MouseLeftButtonDown); }
+            if (_WinElem != null) { GetPattern.GetSynchronizedInputPattern(_WinElem).StartListening(SynchronizedInputType.MouseLeftButtonDown); }
         }
 
         public void ValueSet(string Text)
         {
-            if (_WinElem != null) { GetValuePattern(_WinElem).SetValue(Text); }
+            if (_WinElem != null) { GetPattern.GetValuePattern(_WinElem).SetValue(Text); }
         }
 
         public void ExpCol()
         {
-            ExpandCollapsePattern ExpColPat = GetExpandCollapsePattern(_WinElem);
+            ExpandCollapsePattern ExpColPat = GetPattern.GetExpandCollapsePattern(_WinElem);
             if (_WinElem != null)
             {
                 if (ExpColPat.Current.ExpandCollapseState == ExpandCollapseState.Collapsed)
@@ -227,7 +172,7 @@ namespace UIAutoScriptGen
         {
             if (_Window != null)
             {
-                WindowPattern WinPattern = GetWindowPattern(_Window);
+                WindowPattern WinPattern = GetPattern.GetWindowPattern(_Window);
                 if (WinPattern.Current.WindowVisualState == WindowVisualState.Normal)
                 {
                     WinPattern.SetWindowVisualState(WindowVisualState.Maximized);
@@ -414,14 +359,7 @@ namespace UIAutoScriptGen
         {
             AutomationElement _ReturnElement = null;
             _ReturnElement = AutomationElement.FocusedElement;
-            Hashtable _ReturnTable = new Hashtable();
-            _ReturnTable.Add("Name", _ReturnElement.Current.Name);
-            _ReturnTable.Add("AutoID", _ReturnElement.Current.AutomationId);
-            _ReturnTable.Add("Class", _ReturnElement.Current.ClassName);
-            _ReturnTable.Add("ElemType", _ReturnElement.Current.ControlType.ProgrammaticName);
-            _ReturnTable.Add("ProcID", _ReturnElement.Current.ProcessId);
-            _ReturnTable.Add("ItemType", _ReturnElement.Current.ItemType);
-            _ReturnTable.Add("ParentName", Process.GetProcessById(_ReturnElement.Current.ProcessId).MainWindowTitle);
+            Hashtable _ReturnTable = TypeConverter.AutoElemToHash(_ReturnElement);
             return _ReturnTable;
         }
 
@@ -429,18 +367,8 @@ namespace UIAutoScriptGen
         {
             System.Drawing.Point CurPos = System.Windows.Forms.Cursor.Position;
             Point pt = new Point(CurPos.X, CurPos.Y);
-            AutomationElement _ReturnElement = null;
-            _ReturnElement = AutomationElement.FromPoint(pt);
-            Hashtable _ReturnTable = new Hashtable();
-            _ReturnTable.Add("Name", _ReturnElement.Current.Name);
-            _ReturnTable.Add("AutoID", _ReturnElement.Current.AutomationId);
-            _ReturnTable.Add("Class", _ReturnElement.Current.ClassName);
-            _ReturnTable.Add("ElemType", _ReturnElement.Current.ControlType.ProgrammaticName);
-            _ReturnTable.Add("ProcID", _ReturnElement.Current.ProcessId);
-            _ReturnTable.Add("ItemType", _ReturnElement.Current.ItemType);
-            _ReturnTable.Add("ParentName", GetTopLevelWindow(_ReturnElement).Current.Name);
-            _ReturnTable.Add("Element", _ReturnElement);
-
+            AutomationElement _ReturnElement = AutomationElement.FromPoint(pt);
+            Hashtable _ReturnTable = TypeConverter.AutoElemToHash(_ReturnElement);
             return _ReturnTable;
         }
 
@@ -448,8 +376,7 @@ namespace UIAutoScriptGen
         {
             System.Drawing.Point CurPos = System.Windows.Forms.Cursor.Position;
             Point pt = new Point(CurPos.X, CurPos.Y);
-            AutomationElement _ReturnElement = null;
-            _ReturnElement = AutomationElement.FromPoint(pt);
+            AutomationElement _ReturnElement = AutomationElement.FromPoint(pt);
             return _ReturnElement;
         }
 

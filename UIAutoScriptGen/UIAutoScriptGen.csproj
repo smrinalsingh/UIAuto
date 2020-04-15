@@ -64,9 +64,13 @@
     <Compile Include="DataWindow.xaml.cs">
       <DependentUpon>DataWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ElemListItem.cs" />
+    <Compile Include="GetPattern.cs" />
+    <Compile Include="HierarchyActions.cs" />
     <Compile Include="PatternWin.xaml.cs">
       <DependentUpon>PatternWin.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TypeConverter.cs" />
     <Compile Include="UIControl.cs" />
     <Compile Include="UIElements.cs" />
     <Page Include="DataWindow.xaml">

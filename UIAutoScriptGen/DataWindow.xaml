@@ -6,7 +6,28 @@
         xmlns:local="clr-namespace:UIAutoScriptGen"
         mc:Ignorable="d"
         Title="DataWindow" Height="264.416" Width="294.161">
-    <Grid Cursor="">
+    <Grid>
+        <Grid.Resources>
+            <Style TargetType="Button">
+                <Setter Property="Background" Value="#FFE0E0E0"/>
+                <Setter Property="BorderBrush" Value="#FF364E9E"/>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#FF6AEBFF"/>
+                        <Setter Property="Foreground" Value="Black"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+            <Style TargetType="Grid">
+                <Setter Property="Background" Value="#FFE0E0E0"></Setter>
+            </Style>
+            <Style TargetType="ListView">
+                <Setter Property="Background" Value="#FFE0E0E0"/>
+            </Style>
+            <Style TargetType="GridViewColumnHeader">
+                <Setter Property="Background" Value="#FFE0E0E0"/>
+            </Style>
+        </Grid.Resources>
         <StackPanel x:Name="stkDataLabel" HorizontalAlignment="Left" Height="160" Margin="10,10,0,0" VerticalAlignment="Top" Width="125">
             <StackPanel.Resources>
                 <Style TargetType="{x:Type Label}">
@@ -22,6 +43,6 @@
                 </Style>
             </StackPanel.Resources>
         </StackPanel>
-        <Button x:Name="btnAddData" Content="Add Data" HorizontalAlignment="Left" VerticalAlignment="Top" Width="125" Margin="150,180,0,0" Height="27" Background="White" BorderBrush="#FF364E9E"/>
+        <Button x:Name="btnAddData" Content="Add Data" HorizontalAlignment="Left" VerticalAlignment="Top" Width="125" Margin="150,180,0,0" Height="27"/>
     </Grid>
 </Window>

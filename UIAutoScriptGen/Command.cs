@@ -43,65 +43,65 @@ namespace UIAutoScriptGen
                 switch (IAction)
                 {
                     case "InvokeClick":
-                        UIControl.GetInvokePattern(Element).Invoke();
+                        GetPattern.GetInvokePattern(Element).Invoke();
                         break;
 
                     case "Expand":
-                        UIControl.GetExpandCollapsePattern(Element).Expand();
+                        GetPattern.GetExpandCollapsePattern(Element).Expand();
                         break;
 
                     case "Collapse":
-                        UIControl.GetExpandCollapsePattern(Element).Collapse();
+                        GetPattern.GetExpandCollapsePattern(Element).Collapse();
                         break;
 
                     case "WinMaxState":
-                        UIControl.GetWindowPattern(Element).SetWindowVisualState(WindowVisualState.Maximized);
+                        GetPattern.GetWindowPattern(Element).SetWindowVisualState(WindowVisualState.Maximized);
                         break;
 
                     case "WinMinState":
-                        UIControl.GetWindowPattern(Element).SetWindowVisualState(WindowVisualState.Minimized);
+                        GetPattern.GetWindowPattern(Element).SetWindowVisualState(WindowVisualState.Minimized);
                         break;
 
                     case "WinNormalState":
-                        UIControl.GetWindowPattern(Element).SetWindowVisualState(WindowVisualState.Normal);
+                        GetPattern.GetWindowPattern(Element).SetWindowVisualState(WindowVisualState.Normal);
                         break;
 
                     case "Scroll":
                         string[] XnY = IData.Split(',');
                         ScrollAmount X = (ScrollAmount)Enum.Parse(typeof(ScrollAmount), XnY[0]);
                         ScrollAmount Y = (ScrollAmount)Enum.Parse(typeof(ScrollAmount), XnY[1]);
-                        UIControl.GetScrollPattern(Element).Scroll(X, Y);
+                        GetPattern.GetScrollPattern(Element).Scroll(X, Y);
                         break;
 
                     case "ScrollHorizontal":
                         Y = (ScrollAmount)Enum.Parse(typeof(ScrollAmount), IData);
-                        UIControl.GetScrollPattern(Element).ScrollHorizontal(Y);
+                        GetPattern.GetScrollPattern(Element).ScrollHorizontal(Y);
                         break;
 
                     case "ScrollVertical":
                         X = (ScrollAmount)Enum.Parse(typeof(ScrollAmount), IData);
-                        UIControl.GetScrollPattern(Element).ScrollVertical(X);
+                        GetPattern.GetScrollPattern(Element).ScrollVertical(X);
                         break;
 
                     case "SetScrollPercent":
                         double horPer = double.Parse(IData.Split(',')[0]);
                         double verPer = double.Parse(IData.Split(',')[1]);
-                        UIControl.GetScrollPattern(Element).SetScrollPercent(horPer, verPer);
+                        GetPattern.GetScrollPattern(Element).SetScrollPercent(horPer, verPer);
                         break;
 
                     case "ScrollToView":
-                        UIControl.GetScrollItemPattern(Element).ScrollIntoView();
+                        GetPattern.GetScrollItemPattern(Element).ScrollIntoView();
                         break;
 
                     case "SetElemText":
-                        UIControl.GetValuePattern(Element).SetValue(IData);
+                        GetPattern.GetValuePattern(Element).SetValue(IData);
                         break;
 
                     case "GetSelectedText":
                         throw new NotImplementedException();
 
                     case "Toggle":
-                        UIControl.GetTogglePattern(Element).Toggle();
+                        GetPattern.GetTogglePattern(Element).Toggle();
                         break;
 
                     case "ElementClick":
@@ -124,7 +124,7 @@ namespace UIAutoScriptGen
                         else if (ToClick == "no" || ToClick == "false")
                             UIControl.SendKeys(Element, Text, false);
                         else
-                            throw new InvalidCastException();
+                            Console.WriteLine($"Invalid value. Data given {IData}");
                         break;
                 }
             }
