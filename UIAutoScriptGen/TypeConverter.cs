@@ -90,14 +90,17 @@ namespace UIAutoScriptGen
                 XmlAttribute NameAttr = XML.CreateAttribute("Name");
                 XmlAttribute AutoIDAttr = XML.CreateAttribute("AutoID");
                 XmlAttribute ClassAttr = XML.CreateAttribute("Class");
+                XmlAttribute CtrlID = XML.CreateAttribute("CtrlID");
 
                 NameAttr.Value = level["Name"].ToString();
                 AutoIDAttr.Value = level["AutoID"].ToString();
                 ClassAttr.Value = level["Class"].ToString();
+                CtrlID.Value = level["CtrlID"].ToString();
 
                 Element.Attributes.Append(NameAttr);
                 Element.Attributes.Append(AutoIDAttr);
                 Element.Attributes.Append(ClassAttr);
+                Element.Attributes.Append(CtrlID);
 
                 lastNode = Element;
             }
@@ -119,6 +122,32 @@ namespace UIAutoScriptGen
                 doc.Save(writer);
             }
             return sb.ToString();
+        }
+
+        public static AutomationElement GetAutoElemFromXML(XmlDocument XML)
+        {
+            AutomationElement _ReturnElement = AutomationElement.RootElement;
+            //As programmed, each XMLDoc contains multiple nodes with attributes
+            //containing the element specific details. 
+
+            //Lets start with getting all the nodes.
+            XmlNodeList xmlNodeList = XML.ChildNodes;
+
+            int runIdx = 0;
+            foreach (XmlNode xmlNode in xmlNodeList)
+            {
+                XmlAttributeCollection NodeAttrs = xmlNode.Attributes;
+
+
+                AndCondition AllConditions = new AndCondition(new PropertyCondition(AutomationElement.NameProperty, NodeAttrs["Name"].Value),
+                    new PropertyCondition(AutomationElement.AutomationIdProperty, NodeAttrs["AutoID"].Value),
+                    new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.LookupById(int.Parse(NodeAttrs["CtrlID"].Value))),
+                    new PropertyCondition(AutomationElement.ClassNameProperty, NodeAttrs["Class"].Value));
+                _ReturnElement = _ReturnElement.FindFirst(TreeScope.Children, AllConditions);
+                runIdx++;
+            }
+
+            return _ReturnElement;
         }
 
         #endregion

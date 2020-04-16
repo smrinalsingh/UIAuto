@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -8,6 +9,7 @@ using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Input;
 using System.Xml;
+using System.Reflection;
 
 namespace UIAutoScriptGen
 {
@@ -62,29 +64,39 @@ namespace UIAutoScriptGen
         public UIControl(string XMLStr)
         {
             XmlDocument XMLDoc = new XmlDocument();
+            string[] XMLStrSplit = XMLStr.Split(Environment.NewLine.ToCharArray())
+                                    .Skip(1)
+                                    .ToArray();
+            XMLStr = string.Join(Environment.NewLine, XMLStrSplit);
             XMLDoc.LoadXml(XMLStr);
             _WinElem = GetAutoElemFromXML(XMLDoc);
         }
 
+        public UIControl() { }
+
         public static AutomationElement GetAutoElemFromXML(XmlDocument XML)
         {
-            AutomationElement _ReturnElement = null;
+            AutomationElement _ReturnElement = AutomationElement.RootElement;
             //As programmed, each XMLDoc contains multiple nodes with attributes
             //containing the element specific details. 
 
             //Lets start with getting all the nodes.
-            XmlNodeList xmlNodeList = XML.ChildNodes;
-            
-            foreach(XmlNode xmlNode in xmlNodeList)
-            {
-                XmlAttributeCollection NodeAttrs = xmlNode.Attributes;
+            XmlNode xmlChildNode = XML.ChildNodes[0];
+
+            while(xmlChildNode != null)
+            {   
+                XmlAttributeCollection NodeAttrs = xmlChildNode.Attributes;
+
                 AndCondition AllConditions = new AndCondition(new PropertyCondition(AutomationElement.NameProperty, NodeAttrs["Name"].Value),
                     new PropertyCondition(AutomationElement.AutomationIdProperty, NodeAttrs["AutoID"].Value),
-                    new PropertyCondition(AutomationElement.ControlTypeProperty, NodeAttrs["CtrlType"].Value),
+                    new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.LookupById(int.Parse(NodeAttrs["CtrlID"].Value))),
                     new PropertyCondition(AutomationElement.ClassNameProperty, NodeAttrs["Class"].Value));
 
-                _ReturnElement = AutomationElement.RootElement.FindFirst(TreeScope.Children,
-                    AllConditions);
+                AutomationElement _FoundElem = _ReturnElement.FindFirst(TreeScope.Descendants, AllConditions);
+
+                _ReturnElement = _FoundElem;
+
+                try { xmlChildNode = xmlChildNode.ChildNodes[0]; } catch { xmlChildNode = null; }
             }
 
             return _ReturnElement;
@@ -102,8 +114,8 @@ namespace UIAutoScriptGen
             AutomationElement _ReturnElem = null;
             do
             {
-                _ReturnElem = AutomationElement.RootElement.FindFirst
-                (TreeScope.Children, new PropertyCondition(AutomationElement.NameProperty, WinName));
+                _ReturnElem = AutomationElement.RootElement.FindFirst(TreeScope.Children, 
+                    new PropertyCondition(AutomationElement.NameProperty, WinName));
                 ++i;
                 Thread.Sleep(1000);
             } while (i < Tries && _ReturnElem == null);

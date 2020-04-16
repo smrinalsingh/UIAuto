@@ -166,7 +166,6 @@ namespace UIAutoScriptGen
             var PointedElem = UIControl.GetCurrentPointedElement();
             var ElemXML = TypeConverter.AutoElemToXMLElem(PointedElem);
 
-            MessageBox.Show(PointedElem.Current.ControlType.ToString());
         }
 
         private void OnF9Pressed()
@@ -602,6 +601,11 @@ namespace UIAutoScriptGen
             }
 
             MessageBox.Show(TypeConverter.HashToString(ElemHash));
+        }
+
+        private void Grid_BeginEdit(object sender, DataGridBeginningEditEventArgs e)
+        {
+            e.Cancel = true;
         }
     }
 }

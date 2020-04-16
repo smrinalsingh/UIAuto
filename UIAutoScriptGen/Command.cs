@@ -35,8 +35,10 @@ namespace UIAutoScriptGen
             string IAutoID = listItem.ElemAutoID;
             string IWinName = listItem.WinName;
             string IData = listItem.Data;
+            string Ixml = listItem.ElemXMLTree;
 
-            UIControl UI = new UIControl(IWinName, IName, IClass, IAutoID, TimeOut);
+            //UIControl UI = new UIControl(IWinName, IName, IClass, IAutoID, TimeOut);
+            UIControl UI = new UIControl(Ixml);
             var Element = UI._WinElem;
             if (Element != null)
             {

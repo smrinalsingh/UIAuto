@@ -21,6 +21,7 @@ namespace UIAutoScriptGen
             Hashtable CurrElemHash = new Hashtable();
             CurrElemHash.Add("Name", _element.Current.Name);
             CurrElemHash.Add("CtrlType", _element.Current.ControlType.ProgrammaticName);
+            CurrElemHash.Add("CtrlID", _element.Current.ControlType.Id);
             CurrElemHash.Add("AutoID", _element.Current.AutomationId);
             CurrElemHash.Add("Class", _element.Current.ClassName);
 
@@ -31,6 +32,7 @@ namespace UIAutoScriptGen
                 CurrElemHash = new Hashtable();
                 CurrElemHash["Name"] = _parent.Current.Name;
                 CurrElemHash["CtrlType"] = _parent.Current.ControlType.ProgrammaticName;
+                CurrElemHash["CtrlID"] = _parent.Current.ControlType.Id;
                 CurrElemHash["AutoID"] = _parent.Current.AutomationId;
                 CurrElemHash["Class"] = _parent.Current.ClassName;
 
