@@ -27,8 +27,13 @@
             <Style TargetType="GridViewColumnHeader">
                 <Setter Property="Background" Value="#FFE0E0E0"/>
             </Style>
+            <Style TargetType="Rectangle">
+                <Setter Property="StrokeThickness" Value="4"/>
+                <Setter Property="Stroke" Value="White"/>
+                <Setter Property="Fill" Value="#FFE0E0E0"/>
+            </Style>
         </Grid.Resources>
-        <ListView x:Name="lstElemList" HorizontalAlignment="Left" Height="368" Margin="10,10,0,0" VerticalAlignment="Top" Width="401" BorderBrush="#FF364E9E" MouseDoubleClick="lstElemList_DoubleClick">
+        <ListView x:Name="lstElemList" HorizontalAlignment="Left" Height="368" Margin="10,10,0,0" VerticalAlignment="Top" Width="401" BorderBrush="#FF364E9E" MouseDoubleClick="lstElemList_DoubleClick" SelectionChanged="lstElemList_SelectionChanged">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="Height" Value="50"/>
@@ -57,7 +62,26 @@
                 <Button x:Name="btnRun" Content="Run" HorizontalAlignment="Left" Margin="10,35,0,0" VerticalAlignment="Top" Width="110" Click="btnRun_Click"/>
                 <Button x:Name="btnSaveScript" Content="Save" HorizontalAlignment="Left" Margin="125,205,0,0" VerticalAlignment="Top" Width="110" Click="btnSaveScript_Click"/>
                 <Button x:Name="btnLoadScript" Content="Load" HorizontalAlignment="Left" Margin="10,205,0,0" VerticalAlignment="Top" Width="110" Click="btnLoadScript_Click"/>
-                <Button x:Name="btnRunSelected" Content="Run Selected" HorizontalAlignment="Left" Margin="125,35,0,0" VerticalAlignment="Top" Width="110" Click="btnRunSelected_Click"/>
+                <Button x:Name="btnRunSelected" Content="Run Selected" HorizontalAlignment="Left" Margin="125,35,0,0" VerticalAlignment="Top" Width="110" Click="btnRunSelected_Click" IsEnabled="False"/>
+                <Button x:Name="btnEditSelected" Content="Edit Selected" HorizontalAlignment="Left" Margin="10,180,0,0" VerticalAlignment="Top" Width="110" IsEnabled="False" Click="btnEditSelected_Click"/>
+                <Rectangle HorizontalAlignment="Left" Height="115" Margin="10,60,0,0" VerticalAlignment="Top" Width="225"/>
+                <StackPanel x:Name="stkSimulateRadio" HorizontalAlignment="Left" Height="115" Margin="10,60,0,0" VerticalAlignment="Top" Width="109">
+                    <StackPanel.Resources>
+                        <Style TargetType="{x:Type RadioButton}">
+                            <Setter Property="Margin" Value="10,10,0,0"/>
+                        </Style>
+                    </StackPanel.Resources>
+                    <RadioButton x:Name="radCtrlF7" Content="Ctrl + F7" Checked="radCtrl_Checked"/>
+                    <RadioButton x:Name="radCtrlF8" Content="Ctrl + F8" Checked="radCtrl_Checked"/>
+                    <RadioButton x:Name="radCtrlF9" Content="Ctrl + F9" Checked="radCtrl_Checked"/>
+                    <RadioButton x:Name="radCtrlF10" Content="Ctrl + F10" Checked="radCtrl_Checked"/>
+                </StackPanel>
+                <Grid HorizontalAlignment="Left" Height="107" Margin="125,64,0,0" VerticalAlignment="Top" Width="105">
+                    <TextBox x:Name="txtSimulateSec" HorizontalAlignment="Left" Height="22" Margin="10,41,0,0" TextWrapping="WrapWithOverflow" Text="0" VerticalAlignment="Top" Width="29" TextAlignment="Center" TextChanged="txtSimulateSec_TextChanged"/>
+                    <Label Content="Simulate in:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="85"/>
+                    <TextBox HorizontalAlignment="Left" Height="22" Margin="39,41,0,0" TextWrapping="Wrap" Text="Seconds" VerticalAlignment="Top" Width="56" TextAlignment="Center" IsReadOnly="True"/>
+                    <Button x:Name="btnSimulate" Content="Simulate" HorizontalAlignment="Left" Margin="10,77,0,0" VerticalAlignment="Top" Width="85" IsEnabled="False" Click="btnSimulate_Click"/>
+                </Grid>
             </Grid>
         </Border>
     </Grid>

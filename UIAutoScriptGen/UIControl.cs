@@ -83,22 +83,28 @@ namespace UIAutoScriptGen
             //Lets start with getting all the nodes.
             XmlNode xmlChildNode = XML.ChildNodes[0];
 
-            while(xmlChildNode != null)
-            {   
+            while (xmlChildNode != null)
+            {
                 XmlAttributeCollection NodeAttrs = xmlChildNode.Attributes;
+                try
+                {
+                    AndCondition AllConditions = new AndCondition(new PropertyCondition(AutomationElement.NameProperty, NodeAttrs["Name"].Value),
+                        new PropertyCondition(AutomationElement.AutomationIdProperty, NodeAttrs["AutoID"].Value),
+                        new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.LookupById(int.Parse(NodeAttrs["CtrlID"].Value))),
+                        new PropertyCondition(AutomationElement.ClassNameProperty, NodeAttrs["Class"].Value));
 
-                AndCondition AllConditions = new AndCondition(new PropertyCondition(AutomationElement.NameProperty, NodeAttrs["Name"].Value),
-                    new PropertyCondition(AutomationElement.AutomationIdProperty, NodeAttrs["AutoID"].Value),
-                    new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.LookupById(int.Parse(NodeAttrs["CtrlID"].Value))),
-                    new PropertyCondition(AutomationElement.ClassNameProperty, NodeAttrs["Class"].Value));
+                    AutomationElement _FoundElem = _ReturnElement.FindFirst(TreeScope.Descendants, AllConditions);
+                    _ReturnElement = _FoundElem;
+                    try { xmlChildNode = xmlChildNode.ChildNodes[0]; } catch { xmlChildNode = null; }
+                }
 
-                AutomationElement _FoundElem = _ReturnElement.FindFirst(TreeScope.Descendants, AllConditions);
-
-                _ReturnElement = _FoundElem;
-
-                try { xmlChildNode = xmlChildNode.ChildNodes[0]; } catch { xmlChildNode = null; }
+                catch
+                {
+                    MessageBox.Show("Probably invalid XML format. Check that all attributes exist.", "NullReferenceException");
+                    _ReturnElement = null;
+                    break;
+                }
             }
-
             return _ReturnElement;
         }
 
@@ -114,7 +120,7 @@ namespace UIAutoScriptGen
             AutomationElement _ReturnElem = null;
             do
             {
-                _ReturnElem = AutomationElement.RootElement.FindFirst(TreeScope.Children, 
+                _ReturnElem = AutomationElement.RootElement.FindFirst(TreeScope.Children,
                     new PropertyCondition(AutomationElement.NameProperty, WinName));
                 ++i;
                 Thread.Sleep(1000);
@@ -198,7 +204,7 @@ namespace UIAutoScriptGen
                 MouseToElem();
                 MouseClick("left");
             }
-            catch(Exception) { Debug.WriteLine(string.Format("Could not find clickable point. \"{0}\" \"{1}\"", WindowName, WinElemName), "NoClickablePoint"); }
+            catch (Exception) { Debug.WriteLine(string.Format("Could not find clickable point. \"{0}\" \"{1}\"", WindowName, WinElemName), "NoClickablePoint"); }
         }
 
         public void SendKeys(string Text, bool TryClickElement)
@@ -206,7 +212,7 @@ namespace UIAutoScriptGen
             if (TryClickElement) { ElemClick(); }
             System.Windows.Forms.SendKeys.SendWait(Text);
         }
-        
+
 
         #region Public Functions (Static)
         public static MousePoint ClickablePoint(AutomationElement element)

@@ -11,6 +11,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Automation;
@@ -603,9 +604,90 @@ namespace UIAutoScriptGen
             MessageBox.Show(TypeConverter.HashToString(ElemHash));
         }
 
-        private void Grid_BeginEdit(object sender, DataGridBeginningEditEventArgs e)
+        private void lstElemList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            e.Cancel = true;
+            if (lstElemList.SelectedIndex != -1)
+            {
+                btnEditSelected.IsEnabled = true;
+                btnRunSelected.IsEnabled = true;                
+            }
+            else
+            {
+                btnEditSelected.IsEnabled = false;
+                btnRunSelected.IsEnabled = false;
+            }
         }
+
+        private void btnEditSelected_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        #region Simulation related.
+        private void radCtrl_Checked(object sender, RoutedEventArgs e)
+        {
+            btnSimulate.IsEnabled = true;
+        }
+
+        private void txtSimulateSec_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            try
+            {
+                int s = int.Parse(txtSimulateSec.Text);
+                if (s > 60)
+                {
+                    txtSimulateSec.Text = "60";
+                }
+            }
+            catch
+            {
+                txtSimulateSec.Text = "0";
+            }
+        }
+
+        private void btnSimulate_Click(object sender, RoutedEventArgs e)
+        {
+            string Checked = "";
+            int sec = int.Parse(txtSimulateSec.Text);
+            foreach (RadioButton radio in stkSimulateRadio.Children)
+            {
+                if (radio.IsChecked == true)
+                {
+                    Checked = radio.Name.ToLower();
+                    break;
+                }
+            }
+
+            if (Checked == "radctrlf8")
+            {
+                Task.Factory.StartNew(() =>
+                {
+                    Thread.Sleep(sec * 1000);
+                }).ContinueWith(antecedent => {
+                    Dispatcher.Invoke(() => OnF8Pressed());
+                    });
+            }
+            
+            else if (Checked == "radctrlf9")
+            {
+                Task.Factory.StartNew(() =>
+                {
+                    Thread.Sleep(sec * 1000);
+                }).ContinueWith(antecedent => {
+                    Dispatcher.Invoke(() => OnF9Pressed());
+                    });
+            }
+
+            else if (Checked == "radctrlf10")
+            {
+                Task.Factory.StartNew(() =>
+                {
+                    Thread.Sleep(sec * 1000);
+                }).ContinueWith(antecedent => {
+                    Dispatcher.Invoke(() => OnF10Pressed());
+                    });
+            }
+        }
+        #endregion
     }
 }
