@@ -43,11 +43,13 @@ namespace UIAutoScriptGen
         }
         PatternWin patternWin = new PatternWin();
         DataWindow dataWindow = new DataWindow();
+        System.Windows.Forms.NotifyIcon ni = new System.Windows.Forms.NotifyIcon();
+        bool HideMainWin = true;
 
         public MainWindow()
         {
             InitializeComponent();
-            //PatternWin.PreviewMouseDown += stkItemClicked;
+            TaskBarNotifSetup();
         }
 
         private void SetWinName()
@@ -63,6 +65,7 @@ namespace UIAutoScriptGen
             }
         }
 
+        #region Related to application windows' closing or keydown actions.
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
@@ -86,6 +89,17 @@ namespace UIAutoScriptGen
             RegisterHotKey(Handle, 3, (uint)KeyboardKeys.Ctrl, (uint)KeyboardKeys.F8);
         }
 
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            if (HideMainWin)
+            {
+                e.Cancel = HideMainWin;
+                this.Hide();
+                ni.ShowBalloonTip(5000, "Minimized", "UI Automator is still running.", System.Windows.Forms.ToolTipIcon.Info);
+            }
+            else { ni.Dispose(); }
+        }
+
         private void PatternWin_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             e.Cancel = true;
@@ -98,6 +112,24 @@ namespace UIAutoScriptGen
             dataWindow.Hide();
         }
 
+        protected override void OnClosed(EventArgs e)
+        {
+            //Unregister hotkey.
+            base.OnClosed(e);
+            UnregisterHotKey(1);
+
+            //Remove override of closing method to hide.
+            patternWin.Closing -= PatternWin_Closing;
+            dataWindow.Closing -= DataWin_Closing;
+
+            //close
+            patternWin.Close();
+            dataWindow.Close();
+
+            //dispose NotifyIcon
+            ni.Dispose();
+        }
+
         private void MainWinKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
             if (e.Key == System.Windows.Input.Key.S &&
@@ -107,6 +139,7 @@ namespace UIAutoScriptGen
                 MessageBox.Show("Saved.");
             }
         }
+        #endregion
 
         #region Hotkey stuff
 
@@ -227,6 +260,7 @@ namespace UIAutoScriptGen
         }
         #endregion
 
+        #region UI Elements' events based action functions.
         /// <summary>
         /// Event handler for adding buttons for subcontrols once a SupportedPattern button is clicked
         /// </summary>
@@ -316,30 +350,6 @@ namespace UIAutoScriptGen
             AddSubMenus(ControlsNData, _ElemHash, _Elem);
         }
 
-        /// <summary>
-        /// This function creates each button, adds the button's functionality and adds the button to the
-        /// SubControl stackpanel.
-        /// </summary>
-        /// <param name="ControlsNData"></param>
-        /// <param name="_ElemHash"></param>
-        /// <param name="_Elem"></param>
-        private void AddSubMenus(Hashtable ControlsNData, Hashtable _ElemHash, AutomationElement _Elem)
-        {
-            patternWin.stkSubControlTypes.Children.Clear();
-            foreach (string SubControl in ControlsNData.Keys)
-            {
-                Button btnSubControl = new Button()
-                {
-                    Content = SubControl,
-                };
-                btnSubControl.Click += delegate (object senderr, RoutedEventArgs ee)
-                {
-                    BtnSubControl_Click(senderr, ee, _ElemHash, btnSubControl, (string[])ControlsNData[SubControl]);
-                };
-                patternWin.stkSubControlTypes.Children.Add(btnSubControl);
-            }
-        }
-
         private void BtnSubControl_Click(object sender, RoutedEventArgs e, Hashtable _ElemHash, Button Btn, string[] SubMenuActions)
         {
             //MessageBox.Show(Btn.Content.ToString());
@@ -362,43 +372,7 @@ namespace UIAutoScriptGen
             }
             patternWin.Hide();
         }
-
-        /// <summary>
-        /// This function lays out controls created at Runtime onto the given window. The requirement 
-        /// would be the window and the control is pre-defined as of now. A label and textbox for each.
-        /// </summary>
-        /// <param name="labelStack"></param>
-        /// <param name="textboxStack"></param>
-        /// <param name="Height"></param>
-        /// <param name="Width"></param>
-        /// <param name="SubMenuActions"></param>
-        /// <param name="Btn"></param>
-        private void LayControls(StackPanel labelStack, StackPanel textboxStack,
-            string[] SubMenuActions, Button Btn, Hashtable _ElemHash)
-        {
-            foreach (string action in SubMenuActions)
-            {
-                Label lbl = new Label()
-                {
-                    Content = action,
-                };
-
-                TextBox txtbx = new TextBox()
-                {
-                    Height = lbl.Height + 10,
-                    Width = lbl.Width,
-                };
-
-                labelStack.Children.Add(lbl);
-                textboxStack.Children.Add(txtbx);
-            }
-            buttToDataWin = Btn;
-            _elHashToDataWin = _ElemHash;
-
-            //RemoveClickEvent(dataWindow.btnAddData);
-            dataWindow.btnAddData.Click += BtnAddData_Click;
-        }
-
+        
         private Button buttToDataWin = null;
         private Hashtable _elHashToDataWin = null;
 
@@ -424,22 +398,7 @@ namespace UIAutoScriptGen
             buttToDataWin = null;
             _elHashToDataWin = null;
         }
-
-        protected override void OnClosed(EventArgs e)
-        {
-            //Unregister hotkey.
-            base.OnClosed(e);
-            UnregisterHotKey(1);
-
-            //Remove override of closing method to hide.
-            patternWin.Closing -= PatternWin_Closing;
-            dataWindow.Closing -= DataWin_Closing;
-
-            //close
-            patternWin.Close();
-            dataWindow.Close();
-        }
-
+        
         private void btnClearAll_Click(object sender, RoutedEventArgs e)
         {
             lstElemList.Items.Clear();
@@ -483,80 +442,6 @@ namespace UIAutoScriptGen
                 }
 
                 else if (Choice == MessageBoxResult.Cancel || Choice == MessageBoxResult.None) { }
-            }
-        }
-
-        private void LoadFile()
-        {
-            OpenFileDialog FilePath = new OpenFileDialog()
-            {
-                Filter = "UIAuto File|*.uia",
-                Title = "Open Generated Script",
-                DefaultExt = "uia",
-            };
-            FilePath.ShowDialog();
-            OpenFileName = FilePath.FileName;
-
-            if (OpenFileName != null && OpenFileName != "")
-            {
-                try
-                {
-                    Stream stream = new FileStream(OpenFileName, FileMode.Open, FileAccess.Read);
-                    IFormatter formatter = new BinaryFormatter();
-                    List<ElemListItem> items = (List<ElemListItem>)formatter.Deserialize(stream);
-                    foreach (ElemListItem item in items) { lstElemList.Items.Add(item); }
-                    stream.Close();
-                }
-                catch (Exception ee)
-                {
-                    MessageBox.Show("Unable to open file.\nError: " + ee.Message);
-                }
-            }
-
-            else
-            {
-                OpenFileName = null;
-            }
-        }
-
-        private void SaveScript()
-        {
-            List<ElemListItem> ScriptLines = new List<ElemListItem>();
-            ScriptLines.AddRange(lstElemList.Items.OfType<ElemListItem>());
-            //ElemListItem one = (ElemListItem)ScriptLines[0];
-            IFormatter formatter = new BinaryFormatter();
-
-            if (OpenFileName == "" || OpenFileName == null)
-            {
-                SaveFileDialog SaveName = new SaveFileDialog()
-                {
-                    Filter = "UIAuto File|*.uia",
-                    Title = "Save Generated Script",
-                    DefaultExt = "uia",
-                };
-                SaveName.ShowDialog();
-
-                OpenFileName = SaveName.FileName;
-
-                Stream stream = new FileStream(OpenFileName, FileMode.Create, FileAccess.Write);
-                formatter.Serialize(stream, ScriptLines);
-                stream.Close();
-            }
-
-            else if (OpenFileName != "")
-            {
-                try
-                {
-                    Stream stream = new FileStream(OpenFileName, FileMode.Create, FileAccess.Write);
-                    formatter.Serialize(stream, ScriptLines);
-                    stream.Close();
-                }
-
-                catch (Exception ee)
-                {
-                    Debug.Write(ee.Message);
-                    MessageBox.Show("File not saved!\nError: " + ee.Message);
-                }
             }
         }
 
@@ -620,8 +505,174 @@ namespace UIAutoScriptGen
 
         private void btnEditSelected_Click(object sender, RoutedEventArgs e)
         {
+            ListViewItem Selected = (ListViewItem)lstElemList.SelectedItem;
 
         }
+        #endregion
+
+        #region Other needed private functions
+
+        #region Related to stacking controls.
+        /// <summary>
+        /// This function creates each button, adds the button's functionality and adds the button to the
+        /// SubControl stackpanel.
+        /// </summary>
+        /// <param name="ControlsNData"></param>
+        /// <param name="_ElemHash"></param>
+        /// <param name="_Elem"></param>
+        private void AddSubMenus(Hashtable ControlsNData, Hashtable _ElemHash, AutomationElement _Elem)
+        {
+            patternWin.stkSubControlTypes.Children.Clear();
+            foreach (string SubControl in ControlsNData.Keys)
+            {
+                Button btnSubControl = new Button()
+                {
+                    Content = SubControl,
+                };
+                btnSubControl.Click += delegate (object senderr, RoutedEventArgs ee)
+                {
+                    BtnSubControl_Click(senderr, ee, _ElemHash, btnSubControl, (string[])ControlsNData[SubControl]);
+                };
+                patternWin.stkSubControlTypes.Children.Add(btnSubControl);
+            }
+        }
+
+        /// <summary>
+        /// This function lays out controls created at Runtime onto the given window. The requirement 
+        /// would be the window and the control is pre-defined as of now. A label and textbox for each.
+        /// </summary>
+        /// <param name="labelStack"></param>
+        /// <param name="textboxStack"></param>
+        /// <param name="Height"></param>
+        /// <param name="Width"></param>
+        /// <param name="SubMenuActions"></param>
+        /// <param name="Btn"></param>
+        private void LayControls(StackPanel labelStack, StackPanel textboxStack,
+            string[] SubMenuActions, Button Btn, Hashtable _ElemHash)
+        {
+            foreach (string action in SubMenuActions)
+            {
+                Label lbl = new Label()
+                {
+                    Content = action,
+                };
+
+                TextBox txtbx = new TextBox()
+                {
+                    Height = lbl.Height + 10,
+                    Width = lbl.Width,
+                };
+
+                labelStack.Children.Add(lbl);
+                textboxStack.Children.Add(txtbx);
+            }
+            buttToDataWin = Btn;
+            _elHashToDataWin = _ElemHash;
+
+            //RemoveClickEvent(dataWindow.btnAddData);
+            dataWindow.btnAddData.Click += BtnAddData_Click;
+        }
+        #endregion
+
+        #region Script file related.
+        private void LoadFile()
+        {
+            OpenFileDialog FilePath = new OpenFileDialog()
+            {
+                Filter = "UIAuto File|*.uia",
+                Title = "Open Generated Script",
+                DefaultExt = "uia",
+            };
+            FilePath.ShowDialog();
+            OpenFileName = FilePath.FileName;
+
+            if (OpenFileName != null && OpenFileName != "")
+            {
+                try
+                {
+                    Stream stream = new FileStream(OpenFileName, FileMode.Open, FileAccess.Read);
+                    IFormatter formatter = new BinaryFormatter();
+                    List<ElemListItem> items = (List<ElemListItem>)formatter.Deserialize(stream);
+                    foreach (ElemListItem item in items) { lstElemList.Items.Add(item); }
+                    stream.Close();
+                }
+                catch (Exception ee)
+                {
+                    MessageBox.Show("Unable to open file.\nError: " + ee.Message);
+                }
+            }
+
+            else
+            {
+                OpenFileName = null;
+            }
+        }
+        private void SaveScript()
+        {
+            List<ElemListItem> ScriptLines = new List<ElemListItem>();
+            ScriptLines.AddRange(lstElemList.Items.OfType<ElemListItem>());
+            //ElemListItem one = (ElemListItem)ScriptLines[0];
+            IFormatter formatter = new BinaryFormatter();
+
+            if (OpenFileName == "" || OpenFileName == null)
+            {
+                SaveFileDialog SaveName = new SaveFileDialog()
+                {
+                    Filter = "UIAuto File|*.uia",
+                    Title = "Save Generated Script",
+                    DefaultExt = "uia",
+                };
+                SaveName.ShowDialog();
+
+                OpenFileName = SaveName.FileName;
+
+                Stream stream = new FileStream(OpenFileName, FileMode.Create, FileAccess.Write);
+                formatter.Serialize(stream, ScriptLines);
+                stream.Close();
+            }
+
+            else if (OpenFileName != "")
+            {
+                try
+                {
+                    Stream stream = new FileStream(OpenFileName, FileMode.Create, FileAccess.Write);
+                    formatter.Serialize(stream, ScriptLines);
+                    stream.Close();
+                }
+
+                catch (Exception ee)
+                {
+                    Debug.Write(ee.Message);
+                    MessageBox.Show("File not saved!\nError: " + ee.Message);
+                }
+            }
+        }
+        #endregion
+
+        private void TaskBarNotifSetup()
+        {
+            ni.Icon = new System.Drawing.Icon(GetType(), "notifyIcon.ico");
+            ni.Text = "UI Automator";
+            ni.Visible = true;
+            ni.DoubleClick +=
+                delegate (object sender, EventArgs args)
+                {
+                    this.Show();
+                    this.WindowState = WindowState.Normal;
+                };
+            var niContext = new System.Windows.Forms.ContextMenu();
+            var miExit = new System.Windows.Forms.MenuItem();
+            niContext.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] { miExit });
+            miExit.Text = "Exit";
+            miExit.Click += delegate(object sender, EventArgs e)
+            {
+                HideMainWin = false;
+                this.Close();
+            };
+            ni.ContextMenu = niContext;
+        }
+
+        #endregion
 
         #region Simulation related.
         private void radCtrl_Checked(object sender, RoutedEventArgs e)

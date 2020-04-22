@@ -36,3 +36,5 @@ C:\Users\Admin\Documents\UIAuto\UIAutoScriptGen\obj\Debug\UIAutoScriptGen.csproj
 C:\Users\Admin\Documents\UIAuto\UIAutoScriptGen\obj\Debug\UIAutoScriptGen.csproj.CoreCompileInputs.cache
 C:\Users\Admin\Documents\UIAuto\UIAutoScriptGen\obj\Debug\UIAutoScriptGen.exe
 C:\Users\Admin\Documents\UIAuto\UIAutoScriptGen\obj\Debug\UIAutoScriptGen.pdb
+C:\Users\Admin\Documents\UIAuto\UIAutoScriptGen\obj\Debug\NotificationWindow.g.cs
+C:\Users\Admin\Documents\UIAuto\UIAutoScriptGen\obj\Debug\NotificationWindow.baml

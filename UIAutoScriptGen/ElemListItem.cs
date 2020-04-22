@@ -11,12 +11,12 @@ namespace UIAutoScriptGen
     public class ElemListItem
     {
         public string Action { get; set; }
+        public string ElemXMLTree { get; set; }
         public string ElemName { get; set; }
         public string ElemClass { get; set; }
         public string ElemAutoID { get; set; }
         public string WinName { get; set; }
-        public string Data { get; set; }
-        public string ElemXMLTree { get; set; }
+        public string Data { get; set; }        
 
         public ElemListItem(string Act, string ElName, string ElClass, string ElAutoID, string WName, string Dat, string ElemXML)
         {
